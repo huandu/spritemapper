@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+
+<project name="SpriteMapper" default="jar" basedir=".">
+    <description>
+        Builds the SpriteMapper tool.
+    </description>
+
+    <!-- Directory and file properties -->
+    <property name="dir.dist" value="dist"/>
+    <property name="dir.build" value="build"/>
+    <property name="dir.source" value="src"/>
+    <property name="file.jar" value="${dir.dist}/SpriteMapper.jar"/>
+    <property name="compile.debuglevel" value="lines,vars,source" />
+    <property name="compile.debugging" value="on" />
+
+    <target name="init">
+        <mkdir dir="${dir.dist}"/>
+        <mkdir dir="${dir.build}"/>
+    </target>
+
+    <target name="clean" description="Remove the compiled classes.">
+        <delete dir="${dir.build}"/>
+    </target>
+
+    <target name="distclean" depends="clean" description="Remove the compiled classes and the jar files.">
+        <delete dir="${dir.dist}"/>
+    </target>
+
+    <target name="compile" depends="init" description="Compiles the tools.">
+        <javac includeantruntime="true" source="1.5" target="1.5" debuglevel="${compile.debuglevel}" debug="${compile.debugging}" destdir="${dir.build}">
+            <compilerarg value="-Xlint"/>
+            <src path="${dir.source}"/>
+            <include name="**/*.java"/>
+        </javac>
+    </target>
+
+    <target name="jar" depends="compile" description="Creates a jar file containing the tools.">
+        <jar destfile="${file.jar}">
+            <!-- Executable code -->
+            <fileset casesensitive="false" dir="${dir.build}" includes="**/*.class"/>
+            <fileset casesensitive="false" dir="${basedir}" includes="spritemapper-tasks"/>
+            <manifest>
+                <attribute name="Main-Class" value="dk.cego.spritemapper.SpriteMapperCLI"/>
+            </manifest>
+        </jar>
+        <delete dir="${dir.temp}"/>
+    </target>
+
+    <target name="run_spritemapper" depends="jar">
+        <exec dir="." executable="ant">
+            <arg line="-lib ${dir.dist} -f spritemap.xml"/>
+        </exec>
+    </target>
+
+    <target name="run" depends="run_spritemapper"/>
+</project>

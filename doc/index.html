@@ -1,0 +1,264 @@
+<html>
+    <head>
+        <style>
+            h1 {
+                text-align: center;
+                font-size: 56px;
+            }
+            h2 {
+                text-decoration: underline;
+            }
+            h3 {
+                font-weight: bold;
+            }
+            .console {
+                background-color: black;
+                border: 2px black solid;
+                padding: 5px;
+                color: white;
+                font-family: monospace;
+                width: 700px;
+                white-space: pre-line;
+            }
+            .code {
+                background-color: lightgray;
+                border: 2px green dashed;
+                padding: 5px;
+                width: 700px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>SpriteMapper</h1>
+        <h2>
+            Welcome to the world of sprite mapping!
+        </h2>
+        <p>
+            Sprite mapping is a technique of grouping many small images used in games or websites into one larger image
+            in order to minimize the number of web requests needed to fetch all graphics and in the same time maybe 
+            minimize the file size. The result is a sprite map (also called sprite sheet, texture map or texture atlas).
+        </p>
+        <p>
+            A couple of programs exists for this purpose, for instance <a href="http://zwoptexapp.com/">Zwoptex</a> and
+            <a href="http://texturepacker.com/">TexturePacker</a>. Both of these unfortunately are closed source and not
+            easy to have in your build process. Also Zwoptex only works on Mac.
+        </p>
+        <p>
+            This is where SpriteMapper comes into the picture.
+        </p>
+
+        <h2>Features</h2>
+        <p>
+            SpriteMapper contains many of the same features as Zwoptex and TexturePacker but it also has a couple of unique ones:
+            <ul>
+                <li>Built in Java, so it runs everywhere.</li>
+                <li>
+                    Implements most algorithms and heuristics mentionend in <a href="http://clb.demon.fi/files/RectangleBinPack.pdf">this paper</a>.<br/>
+                    SpriteMapper will run all algorithms and heuristics on the input and choose the one that does the job best.
+                </li>
+                <li>Supports rotation of sprites.</li>
+                <li>Supports trimming away transparent edges.</li>
+                <li>
+                    Exports coordinate lists to Zwoptex 2 format used by <a href="http://www.limejs.com/">LimeJS</a>,
+                    <a href="http://www.cocos2d-iphone.org/">Cocos2D</a>,
+                    <a href="http://www.anscamobile.com/">Corona</a>,
+                    <a href="http://www.sparrow-framework.org/">Sparrow</a> and
+                    <a href="http://code.google.com/p/libgdx/">LibGDX</a>.
+                    More formats can easily be added if needed.
+                </li>
+                <li>Contains an <a href="http://ant.apache.org/">Ant</a> task to allow you to easily integrate with your Ant based build environment.</li>
+                <li>Contains a command line interface to allow you to easily integrate with all build environments.</li>
+                <li>Released under an OpenSource license.</li>
+            </ul>
+            I have no need for a GUI application, so this is not available but it would not be hard to build one.
+        </p>
+
+        <h2>How to build and install</h2>
+        <p>
+            Download the latest source file from <a href="http://opensource.cego.dk/spritemapper/">here</a> and unpack it somewhere.
+            <div class="console">
+                <pre>
+$ wget http://opensource.cego.dk/spritemapper/SpriteMapper.tar.bz2
+--2011-03-07 16:57:05--  http://opensource.cego.dk/spritemapper/SpriteMapper.tar.bz2
+Resolving opensource.cego.dk... 194.255.21.242
+Connecting to opensource.cego.dk|194.255.21.242|:80... connected.
+HTTP request sent, awaiting response... 401 Authorization Required
+Reusing existing connection to opensource.cego.dk:80.
+HTTP request sent, awaiting response... 200 OK
+Length: 1871452 (1,8M) [application/x-bzip2]
+Saving to: `SpriteMapper.tar.bz2'
+
+100%[======================================>] 1.871.452   11,2M/s   in 0,2s    
+
+2011-03-07 16:57:05 (11,2 MB/s) - `SpriteMapper.tar.bz2' saved [1871452/1871452]
+
+$ tar xjf SpriteMapper.tar.bz2
+$ cd SpriteMapper
+                </pre>
+            </div>
+        </p>
+        <p>
+            Run the default 'ant' target
+            <div class="console">
+                <pre>
+$ ant
+Buildfile: /home/robert/SpriteMapper/build.xml
+
+init:
+    [mkdir] Created dir: /home/robert/SpriteMapper/dist
+    [mkdir] Created dir: /home/robert/SpriteMapper/build
+
+compile:
+    [javac] Compiling 31 source files to /home/robert/SpriteMapper/build
+
+jar:
+      [jar] Building jar: /home/robert/SpriteMapper/dist/SpriteMapper.jar
+
+BUILD SUCCESSFUL
+Total time: 1 second
+                </pre>
+            </div>
+        </p>
+        <p>
+            Copy the resulting jar file to your system Ant lib directory.
+            <div class="console">
+                <pre>
+$ sudo cp dist/SpriteMapper.jar /usr/share/ant/lib
+                </pre>
+            </div>
+            ...or to your local Ant lib directory.
+            <div class="console">
+                <pre>
+$ mkdir -p $HOME/.ant/lib
+$ cp dist/SpriteMapper.jar $HOME/.ant/lib
+                </pre>
+            </div>
+        </p>
+        <p>
+            Finally verify the installation by running the demo ant build file.
+            <div class="console">
+                <pre>
+$ ant -f spritemap.xml
+Buildfile: /home/robert/SpriteMapper/spritemap.xml
+
+spritemap_trim:
+[spritemap] Layouter used: Guillotine(BestShortSideChooser,ShortestAxisSplitStrategy)
+[spritemap] Resulting file is 1200 by 1462 pixels. Area is 1754400 square pixels.
+[spritemap] Waste: 1%
+[spritemap] Combined filesize: 1940786 Map filesize: 2277040
+
+spritemap_notrim:
+[spritemap] Layouter used: Guillotine(BestFitChooser,ShortestAxisSplitStrategy)
+[spritemap] Resulting file is 1200 by 1732 pixels. Area is 2078400 square pixels.
+[spritemap] Waste: 1%
+[spritemap] Combined filesize: 1940786 Map filesize: 2307327
+
+spritemaps:
+
+BUILD SUCCESSFUL
+Total time: 2 seconds
+                </pre>
+            </div>
+        </p>
+
+        <h2>How to use with Ant</h2>
+        <p>
+            This is the most well maintained way to run the mapper as this is what I do myself.
+            Get Ant from <a href="http://ant.apache.org/">here</a>.
+        </p>
+        <p>
+            Somewhere in your build file you must load the spritemapper Ant tasks:
+            <div class="code"><code>
+&lt;taskdef resource="spritemapper-tasks"/&gt;
+            </code></div>
+        </p>
+        <p>
+            The following target shows all supported attributes:
+            <div class="code">
+<pre>&lt;target name="spritemap"&gt;
+    &lt;taskdef resource="spritemapper-tasks"/&gt;
+    &lt;spritemap trim="true" drawframes="false" maxwidth="800" destfile="spritemap.png"&gt;
+        &lt;layoutmeta destfile="spritemap.plist" format="zwoptex2"/&gt;
+        &lt;fileset dir="graphics"&gt;
+            &lt;include name="**/*.png"/&gt;
+        &lt;/fileset&gt;
+    &lt;/spritemap&gt;
+&lt;/target&gt;</pre>
+            </div>
+            Each tag/parameter will be described in the following.
+        </p>
+
+        <h3>&lt;spritemap&gt;</h3>
+        <p>
+            The <tt>spritemap</tt> tag is the task for building the spritemap.
+            The images that should be used as input are specified as a nested
+            <tt>fileset</tt> tag. <tt>spritemap</tt> supports the following
+            attributes:
+            <ul>
+                <li>
+                    <tt>trim</tt> - Optional. Remove transparent edges.
+                    The meta output formats specifies how to recreate
+                    the original image. Defaults to <tt>true</tt>.
+                </li>
+                <li>
+                    <tt>drawframes</tt> - Optional. Draw a red frame
+                    around each image. This is for debugging only.
+                    Defaults to <tt>false</tt>.
+                </li>
+                <li>
+                    <tt>maxwidth</tt> - Required. Maximum width in pixels
+                    of the resulting sprite map.
+                </li>
+                <li>
+                    <tt>destfile</tt> - Required. File to write resulting
+                    sprite map to.
+                </li>
+            </ul>
+        </p>
+
+        <h3>&lt;layoutmeta&gt;</h3>
+        <p>
+            This tag defines a file that should contain the coordinate
+            information for the sprite map. It is contained within the
+            <tt>spritemap</tt> tag. Multiple tags are allowed. It
+            supports the following attributes:
+            <ul>
+                <li>
+                    <tt>destfile</tt> - Required. File to write content to.
+                </li>
+                <li>
+                    <tt>format</tt> - Optional. Format of output. Defaults
+                    to 'zwoptex2' which currently is the only supported
+                    format.
+                </li>
+            </ul>
+        </p>
+        <h2>How to use from the command line</h2>
+        <p>
+            The SpriteMapper can also be run from the command line. The jar
+            archive contains a default main class in its manifest file so
+            running it is easy:
+            <div class="console">
+                <pre>
+$ java -jar SpriteMapper.jar
+Usage: java -jar SpriteMapper.jar [options...] &lt;image dir&gt;
+  Options and default values:
+    --zwoptex2=spritemap.plist - Output metadata to 'spritemap.plist' in Zwoptex2 format.
+    --out=spritemap.png        - Output sprite map to 'spritemap.png'.
+    --max-width=1000           - Set maximum width of sprite map to 1000 pixels.
+    --draw-frames=false        - Draw frames around images in sprite map.
+    --trim=true                - Trim transparent edges.
+    --reserve-border=false     - Reserve 1px transparent border for each trimmed image.
+    --file-pattern=\.((png)|(jpe?g)|(gif))$
+                               - Only include files matching this pattern.
+                </pre>
+            </div>
+        </p>
+        <p>
+            Only the top level directory containing images needs to be specified, but the
+            <tt>--zwoptex2</tt> parameter should also be specified. At some point multiple
+            formats will be supported and then several meta output parameters can be
+            specified.
+        </p>
+    </body>
+</html>

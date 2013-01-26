@@ -1,0 +1,499 @@
+2012-12-02 14:50  huandu
+
+	* src/dk/cego/spritemapper/OptimalAlgorithmLayouter.java,
+	  src/dk/cego/spritemapper/OptimalLayouter.java,
+	  src/dk/cego/spritemapper/SpriteMapper.java,
+	  src/dk/cego/spritemapper/SpriteMapperCLI.java,
+	  src/dk/cego/spritemapper/SpriteTrimmer.java: Force output image file width/height has POT value.
+	  And add a new option to generate 1px transparent border for each sprite to avoid OpenGl ES mapping error.
+
+2011-09-28 15:29  robert
+
+	* src/dk/cego/spritemapper/OptimalAlgorithmLayouter.java,
+	  src/dk/cego/spritemapper/SpriteMapperTask.java,
+	  src/dk/cego/spritemapper/maxrects,
+	  src/dk/cego/spritemapper/maxrects/MaxRectsLayouter.java,
+	  src/dk/cego/spritemapper/maxrects/OptimalMaxRectsLayouter.java,
+	  src/dk/cego/spritemapper/util/RectangleCollisionFilter.java,
+	  src/dk/cego/spritemapper/util/SpriteCollections.java: Added
+	  MaxRects layouter.
+
+2011-09-28 14:29  robert
+
+	* src/dk/cego/spritemapper/util/Filter.java,
+	  src/dk/cego/spritemapper/util/SpriteCollections.java,
+	  src/dk/cego/spritemapper/util/SpriteFitFilter.java: Added
+	  copyright notice.
+
+2011-09-28 14:24  robert
+
+	* src/dk/cego/spritemapper/guillotine/GuillotineLayouter.java,
+	  src/dk/cego/spritemapper/util/Filter.java,
+	  src/dk/cego/spritemapper/util/SpriteCollections.java,
+	  src/dk/cego/spritemapper/util/SpriteFitFilter.java: Added filter
+	  methods and use them in guillotine.
+
+2011-09-28 13:57  robert
+
+	* src/dk/cego/spritemapper/util/FreeSpaceComparator.java: Added
+	  copyright notice.
+
+2011-09-28 13:56  robert
+
+	* src/dk/cego/spritemapper/util/FreeSpaceComparator.java: Added
+	  missing class.
+
+2011-09-28 13:56  robert
+
+	* src/dk/cego/spritemapper/guillotine/BestFitChooser.java,
+	  src/dk/cego/spritemapper/guillotine/BestLongSideChooser.java,
+	  src/dk/cego/spritemapper/guillotine/BestShortSideChooser.java,
+	  src/dk/cego/spritemapper/guillotine/FreeSpaceChooser.java,
+	  src/dk/cego/spritemapper/guillotine/GuillotineLayouter.java,
+	  src/dk/cego/spritemapper/guillotine/OptimalGuillotineLayouter.java,
+	  src/dk/cego/spritemapper/guillotine/TopLeftChooser.java,
+	  src/dk/cego/spritemapper/util,
+	  src/dk/cego/spritemapper/util/BestFitChooser.java,
+	  src/dk/cego/spritemapper/util/BestLongSideChooser.java,
+	  src/dk/cego/spritemapper/util/BestShortSideChooser.java,
+	  src/dk/cego/spritemapper/util/FreeSpaceChooser.java,
+	  src/dk/cego/spritemapper/util/TopLeftChooser.java: Rearranged
+	  some code. Certain classes used by Guillotine can be used by the
+	  MaxRects algorithm.
+
+2011-09-28 12:51  robert
+
+	* src/dk/cego/spritemapper/OptimalLayouter.java: Made the
+	  OptimalLayouter iterable over the added layouters.
+
+2011-09-16 07:25  lauritsen
+
+	* src/dk/cego/spritemapper/SpriteTrimmer.java: Made sure that
+	  trimmed image is not negative size, if image is "empty".
+
+2011-07-08 10:33  robert
+
+	* LICENSE: Added the GPLv3 license text.
+
+2011-07-07 13:31  robert
+
+	* doc/index.html: Inform about the possibility to install the
+	  sprite mapper jar file to the users local ant library directory.
+
+2011-06-06 09:25  robert
+
+	* src/dk/cego/spritemapper/Zwoptex2MetaStream.java: Replace
+	  backslashes for forward slashes.
+
+2011-03-22 10:06  robert
+
+	* doc/index.html: Added missing word.
+
+2011-03-16 11:42  robert
+
+	* src/dk/cego/spritemapper/SpriteMapper.java,
+	  src/dk/cego/spritemapper/SpriteMapperCLI.java,
+	  src/dk/cego/spritemapper/SpriteMapperTask.java: Added support for
+	  jpeg output.
+	  This introduced some duplicated code which needs to be cleaned up
+	  somehow.
+
+2011-03-16 08:37  robert
+
+	* .: Added 'build' and 'dist' directories to svn:ignore.
+
+2011-03-15 15:58  robert
+
+	* doc/index.html, src/dk/cego/spritemapper/SpriteMapperCLI.java:
+	  Updated documentation for command line interface.
+
+2011-03-15 15:36  robert
+
+	* src/dk/cego/spritemapper/SpriteMapperCLI.java,
+	  src/dk/cego/spritemapper/cli/FormatOutput.java: Write sprite map
+	  coordinate information from command line version.
+
+2011-03-15 15:26  robert
+
+	* build.xml, src/dk/cego/spritemapper/SpriteMapperCLI.java,
+	  src/dk/cego/spritemapper/cli,
+	  src/dk/cego/spritemapper/cli/CompositeFileMatcher.java,
+	  src/dk/cego/spritemapper/cli/FileMatcher.java,
+	  src/dk/cego/spritemapper/cli/FileTypeFileMatcher.java,
+	  src/dk/cego/spritemapper/cli/FormatOutput.java,
+	  src/dk/cego/spritemapper/cli/RegexFileMatcher.java,
+	  src/dk/cego/spritemapper/cli/Scanner.java: Added first
+	  rudimentary implementation of a command line version.
+
+2011-03-15 14:47  robert
+
+	* src/dk/cego/spritemapper/SpriteMapperTask.java: Use the sprite
+	  importer.
+
+2011-03-15 14:41  robert
+
+	* src/dk/cego/spritemapper/SpriteImporter.java: Added class for
+	  importing sprites from a file.
+
+2011-03-08 08:03  robert
+
+	* doc/index.html: Fixed some styling.
+
+2011-03-08 07:55  robert
+
+	* doc/index.html: Fixed typo.
+
+2011-03-07 21:48  robert
+
+	* doc/index.html: Added more documentation.
+
+2011-03-07 21:21  robert
+
+	* doc/index.html: Fixed typo.
+
+2011-03-07 16:32  robert
+
+	* doc, doc/index.html: Added documentation.
+
+2011-03-07 16:22  robert
+
+	* build.xml, spritemap.xml, spritemapper-tasks, tasks: Renamed
+	  tasks file to spritemapper-tasks.
+
+2011-03-07 15:15  robert
+
+	* graphics, graphics/BallBeach.png, graphics/BallBingo.png,
+	  graphics/BallBingoStar.png, graphics/BallCluster.png,
+	  graphics/BallClusterPart.png, graphics/BallCow.png,
+	  graphics/BallGlory.png, graphics/BallHitRing.png,
+	  graphics/BallKey.png, graphics/BallPartical.png,
+	  graphics/BallRed.png, graphics/BtnCombo.png,
+	  graphics/BtnDownEnd.png, graphics/BtnDownMiddle.png,
+	  graphics/BtnDownStart.png, graphics/BtnEnd.png,
+	  graphics/BtnMiddle.png, graphics/BtnOverEnd.png,
+	  graphics/BtnOverMiddle.png, graphics/BtnOverStart.png,
+	  graphics/BtnStart.png, graphics/Bumber.png,
+	  graphics/BumberFlash.png, graphics/Pin.png,
+	  graphics/PinClock.png, graphics/PinGiant.png,
+	  graphics/PinGiantPartical.png, graphics/PinGiantStar.png,
+	  graphics/PinKeyhole.png, graphics/PinPartical.png,
+	  graphics/PinParticalGray.png, graphics/PinSmall.png,
+	  graphics/PinSquare.png, graphics/PinStar.png,
+	  graphics/PinTriangle.png, graphics/PinTriangle0.png,
+	  graphics/PinTriangle1.png, graphics/PinTriangle2.png,
+	  graphics/PinYinYan.png, graphics/QuestCompleteRing.png,
+	  graphics/SquarePin.png, graphics/Stone1.png, graphics/bonusspin,
+	  graphics/bonusspin/BonusSpinBg.png,
+	  graphics/bonusspin/BonusSpinBgLightUp.png,
+	  graphics/bonusspin/BonusSpinOverlay.png,
+	  graphics/bonusspin/Prize1000.png,
+	  graphics/bonusspin/Prize1500.png,
+	  graphics/bonusspin/Prize2000.png,
+	  graphics/bonusspin/Prize500.png,
+	  graphics/bonusspin/Prize5000.png,
+	  graphics/bonusspin/PrizeBank.png,
+	  graphics/bonusspin/PrizeOff.png, graphics/checkmark.png,
+	  graphics/fairy, graphics/fairy/eyes_closed.png,
+	  graphics/fairy/gloria_1.png, graphics/fairy/gloria_2.png,
+	  graphics/fairy/gloria_3.png, graphics/fairy/gloria_4.png,
+	  graphics/fairy/gloria_5.png, graphics/fairy/gloria_6.png,
+	  graphics/fairy/gloria_pray.png, graphics/fairy/halo.png,
+	  graphics/fairy/luckydice.png, graphics/fairy/wings,
+	  graphics/fairy/wings/wing_1.png, graphics/fairy/wings/wing_2.png,
+	  graphics/fairy/wings/wing_3.png, graphics/fairy/wings/wing_4.png,
+	  graphics/fairy/wings/wing_5.png, graphics/fairy/wings/wing_6.png,
+	  graphics/fairy/wings/wing_7.png, graphics/fairy/wings/wing_8.png,
+	  graphics/gate.png, graphics/gui, graphics/gui/area_arrow.png,
+	  graphics/gui/arrow_down.png, graphics/gui/arrow_left.png,
+	  graphics/gui/arrow_up.png, graphics/gui/balls_10.png,
+	  graphics/gui/balls_10_big.png, graphics/gui/balls_5.png,
+	  graphics/gui/balls_5_big.png, graphics/gui/barbg_cap.png,
+	  graphics/gui/barbg_fill.png, graphics/gui/bonus.png,
+	  graphics/gui/bonus_big.png, graphics/gui/button_left.png,
+	  graphics/gui/button_middle.png, graphics/gui/button_right.png,
+	  graphics/gui/checkmark.png, graphics/gui/dialogbackground.png,
+	  graphics/gui/diary.png, graphics/gui/diary_icon_bingoball.png,
+	  graphics/gui/diary_icon_lastchance.png,
+	  graphics/gui/diary_icon_launcher4.png,
+	  graphics/gui/diary_icon_launcherwarp.png,
+	  graphics/gui/diary_icon_luckydice.png,
+	  graphics/gui/diary_next.png, graphics/gui/diary_question.png,
+	  graphics/gui/diarybackground.png,
+	  graphics/gui/effect_setting_high.png,
+	  graphics/gui/effect_setting_low.png,
+	  graphics/gui/effect_setting_medium.png, graphics/gui/glory.png,
+	  graphics/gui/help.png, graphics/gui/lock.png,
+	  graphics/gui/luckydice.png, graphics/gui/map,
+	  graphics/gui/map/banner_mid.png,
+	  graphics/gui/map/banner_side.png,
+	  graphics/gui/map/current_location.png, graphics/gui/map/map.png,
+	  graphics/gui/map/map_crown.png, graphics/gui/map/map_house.png,
+	  graphics/gui/map/map_lava.png,
+	  graphics/gui/map/map_mountains.png, graphics/gui/map/map_sky.png,
+	  graphics/gui/map/map_stars.png, graphics/gui/map/map_trees.png,
+	  graphics/gui/questbg_bottom.png, graphics/gui/questbg_fill.png,
+	  graphics/gui/questbg_top.png, graphics/gui/quit.png,
+	  graphics/gui/score_mode_question.png, graphics/gui/scrollbar.png,
+	  graphics/gui/sound_off.png, graphics/gui/sound_on.png,
+	  graphics/gui/spin_i.png, graphics/gui/spin_n.png,
+	  graphics/gui/spin_p.png, graphics/gui/spin_s.png,
+	  graphics/gui/tabborder, graphics/gui/tabborder/1.png,
+	  graphics/gui/tabborder/2.png, graphics/gui/tabborder/3.png,
+	  graphics/gui/tabborder/4.png, graphics/gui/titlescreenlogo.png,
+	  graphics/gui/token_100.png, graphics/gui/token_100_big.png,
+	  graphics/gui/token_50.png, graphics/gui/token_50_big.png,
+	  graphics/gui/trophy, graphics/gui/trophy/large,
+	  graphics/gui/trophy/large/bronze.png,
+	  graphics/gui/trophy/large/gold.png,
+	  graphics/gui/trophy/large/silver.png, graphics/gui/trophy/small,
+	  graphics/gui/trophy/small/bronze.png,
+	  graphics/gui/trophy/small/gold.png,
+	  graphics/gui/trophy/small/none.png,
+	  graphics/gui/trophy/small/silver.png, graphics/gui/worldmap.png,
+	  graphics/launcher, graphics/launcher/LauncherCountFlash.png,
+	  graphics/launcher/LauncherRing.png,
+	  graphics/launcher/LauncherShadow.png, graphics/launcher/bonus,
+	  graphics/launcher/bonus/LauncherBase.png,
+	  graphics/launcher/bonus/LauncherUsed1.png,
+	  graphics/launcher/bonus/LauncherUsed2.png,
+	  graphics/launcher/bonus/LauncherUsed3.png,
+	  graphics/launcher/bonus/LauncherUsed4.png,
+	  graphics/launcher/normal,
+	  graphics/launcher/normal/LauncherBase2.png,
+	  graphics/launcher/normal/LauncherBase4.png,
+	  graphics/launcher/normal/LauncherGlow2.png,
+	  graphics/launcher/normal/LauncherGlow4.png,
+	  graphics/launcher/normal/LauncherUsed1.png,
+	  graphics/launcher/normal/LauncherUsed2.png,
+	  graphics/launcher/normal/LauncherUsed3.png,
+	  graphics/launcher/normal/LauncherUsed4.png,
+	  graphics/secondchance, graphics/secondchance/Balls.png,
+	  graphics/secondchance/BtnHold.png,
+	  graphics/secondchance/BtnHoldDown.png,
+	  graphics/secondchance/BtnSpin.png,
+	  graphics/secondchance/BtnSpinDown.png,
+	  graphics/secondchance/Icon1.png, graphics/secondchance/Icon2.png,
+	  graphics/secondchance/Icon3.png, graphics/secondchance/Icon4.png,
+	  graphics/secondchance/Icon5.png, graphics/secondchance/Icon6.png,
+	  graphics/secondchance/Icon7.png, graphics/secondchance/Icon8.png,
+	  graphics/secondchance/LabelHold.png,
+	  graphics/secondchance/LabelSpin.png,
+	  graphics/secondchance/SlotmachineBg.png,
+	  graphics/secondchance/Tokens.png, spritemap.xml: Added graphics
+	  for testing.
+
+2011-03-07 11:45  robert
+
+	* src/dk/cego/spritemapper/shelf/ShelfLayouter.java: Named the
+	  shelf layouter.
+
+2011-03-07 09:01  robert
+
+	* spritemap.xml, src/dk/cego/spritemapper/SpriteMapper.java,
+	  src/dk/cego/spritemapper/SpriteMapperTask.java: Created a new tag
+	  for meta output.
+
+2011-03-03 22:35  robert
+
+	* spritemap.xml: Split the task in two. One for trimmed, one for
+	  non-trimmed.
+
+2011-03-03 22:32  robert
+
+	* src/dk/cego/spritemapper/SpriteMapperTask.java: Write more stuff.
+
+2011-03-03 22:27  robert
+
+	* src/dk/cego/spritemapper/guillotine/OptimalGuillotineLayouter.java,
+	  src/dk/cego/spritemapper/guillotine/TopLeftChooser.java: Added
+	  top-left chooser.
+
+2011-03-03 22:26  robert
+
+	* src/dk/cego/spritemapper/OptimalLayouter.java: Catch exception
+	  when a layouter cannot find space for all.
+
+2011-03-03 15:24  robert
+
+	* src/dk/cego/spritemapper/OptimalLayouter.java,
+	  src/dk/cego/spritemapper/SpriteMapperTask.java,
+	  src/dk/cego/spritemapper/guillotine/GuillotineLayouter.java: Tell
+	  which layout algorithm was used.
+
+2011-03-03 15:13  robert
+
+	* src/dk/cego/spritemapper/guillotine/BestLongSideChooser.java,
+	  src/dk/cego/spritemapper/guillotine/BestShortSideChooser.java,
+	  src/dk/cego/spritemapper/guillotine/OptimalGuillotineLayouter.java:
+	  Added two more fitness strategies.
+
+2011-03-03 15:05  robert
+
+	* src/dk/cego/spritemapper/OptimalLayouter.java: Switch order of
+	  comparisons.
+
+2011-03-03 15:03  robert
+
+	* spritemap.xml, src/dk/cego/spritemapper/OptimalLayouter.java,
+	  src/dk/cego/spritemapper/guillotine/MaximumAreaDifferenceSplitStrategy.java,
+	  src/dk/cego/spritemapper/guillotine/MinimumAreaDifferenceSplitStrategy.java,
+	  src/dk/cego/spritemapper/guillotine/OptimalGuillotineLayouter.java:
+	  Added more split strategies.
+
+2011-03-03 14:51  robert
+
+	* src/dk/cego/spritemapper/guillotine/GuillotineLayouter.java: Made
+	  it possible to use the splitting functions from outside the
+	  class.
+
+2011-03-03 14:21  robert
+
+	* src/dk/cego/spritemapper/guillotine/LongestLeftoverAxisSplitStrategy.java,
+	  src/dk/cego/spritemapper/guillotine/OptimalGuillotineLayouter.java,
+	  src/dk/cego/spritemapper/guillotine/ShortestLeftoverAxisSplitStrategy.java:
+	  Added more split strategies.
+
+2011-03-03 14:15  robert
+
+	* src/dk/cego/spritemapper/OptimalAlgorithmLayouter.java,
+	  src/dk/cego/spritemapper/ShelfLayouter.java,
+	  src/dk/cego/spritemapper/shelf,
+	  src/dk/cego/spritemapper/shelf/ShelfLayouter.java: Moved shelf
+	  layouter to its own package and added it to the optimal algorithm
+	  layouter.
+
+2011-03-03 14:12  robert
+
+	* src/dk/cego/spritemapper/Shelf.java,
+	  src/dk/cego/spritemapper/ShelfLayouter.java: Removed the Shelf
+	  class.
+
+2011-03-03 14:09  robert
+
+	* src/dk/cego/spritemapper/GuillotineLayouter.java,
+	  src/dk/cego/spritemapper/OptimalAlgorithmLayouter.java,
+	  src/dk/cego/spritemapper/OptimalLayouter.java,
+	  src/dk/cego/spritemapper/SpriteMapperTask.java,
+	  src/dk/cego/spritemapper/guillotine/GuillotineLayouter.java,
+	  src/dk/cego/spritemapper/guillotine/OptimalGuillotineLayouter.java:
+	  A little cleanup plus composite layouters.
+
+2011-03-03 13:14  robert
+
+	* build.xml, lib: Removed unused lib directory.
+
+2011-03-03 12:31  robert
+
+	* src/dk/cego/spritemapper/GuillotineLayouter.java,
+	  src/dk/cego/spritemapper/ObjectHandler.java,
+	  src/dk/cego/spritemapper/Rectangle.java,
+	  src/dk/cego/spritemapper/Shelf.java,
+	  src/dk/cego/spritemapper/ShelfLayouter.java,
+	  src/dk/cego/spritemapper/Sprite.java,
+	  src/dk/cego/spritemapper/SpriteLayouter.java,
+	  src/dk/cego/spritemapper/SpriteMapper.java,
+	  src/dk/cego/spritemapper/SpriteMapperMetaStream.java,
+	  src/dk/cego/spritemapper/SpriteMapperTask.java,
+	  src/dk/cego/spritemapper/SpriteTrimmer.java,
+	  src/dk/cego/spritemapper/Zwoptex2MetaStream.java,
+	  src/dk/cego/spritemapper/guillotine/BestFitChooser.java,
+	  src/dk/cego/spritemapper/guillotine/FreeSpaceChooser.java,
+	  src/dk/cego/spritemapper/guillotine/FreeSpaceSplitStrategy.java,
+	  src/dk/cego/spritemapper/guillotine/LongestAxisSplitStrategy.java,
+	  src/dk/cego/spritemapper/guillotine/ShortestAxisSplitStrategy.java,
+	  src/dk/cego/spritemapper/spritecomparators/AreaComparator.java,
+	  src/dk/cego/spritemapper/spritecomparators/HeightComparator.java,
+	  src/dk/cego/spritemapper/spritecomparators/WidthComparator.java,
+	  src/dk/cego/spritemapper/spritehandlers/Landscape.java,
+	  src/dk/cego/spritemapper/spritehandlers/Portrait.java: Added
+	  copyright header to all files.
+
+2011-03-03 11:21  robert
+
+	* README: Removed implemented feature from todo list and added new
+	  wish.
+
+2011-03-03 10:54  robert
+
+	* spritemap.xml: Build trimmed and not trimmed maps.
+
+2011-03-03 10:49  robert
+
+	* src/dk/cego/spritemapper/SpriteMapperTask.java: Enable/disable
+	  trimming through Ant task.
+
+2011-03-03 10:00  robert
+
+	* src/dk/cego/spritemapper/SpriteMapper.java,
+	  src/dk/cego/spritemapper/SpriteTrimmer.java: Added trimming.
+
+2011-03-03 09:18  robert
+
+	* src/dk/cego/spritemapper/Sprite.java,
+	  src/dk/cego/spritemapper/Zwoptex2MetaStream.java: Prepared sprite
+	  and meta streamer for trimming.
+
+2011-03-03 09:08  robert
+
+	* src/dk/cego/spritemapper/Sprite.java,
+	  src/dk/cego/spritemapper/Zwoptex2MetaStream.java: Reverted change
+	  for trimming. The implementation would not hold.
+
+2011-03-02 16:04  robert
+
+	* README, src/dk/cego/spritemapper/Sprite.java,
+	  src/dk/cego/spritemapper/Zwoptex2MetaStream.java: Made Sprite and
+	  Zwoptex2MetaStream ready for trimming.
+
+2011-03-02 15:56  robert
+
+	* src/dk/cego/spritemapper/Sprite.java: Provide width and height in
+	  constructor.
+
+2011-03-02 14:29  robert
+
+	* src/dk/cego/spritemapper/JSONSpriteMapperMetaStream.java: Removed
+	  the JSONSpriteMapperMetaStream.
+
+2011-03-02 14:18  robert
+
+	* src/dk/cego/spritemapper/SpriteMapperTask.java,
+	  src/dk/cego/spritemapper/Zwoptex2MetaStream.java,
+	  src/dk/cego/spritemapper/ZwoptexMetaStream.java: Renamed meta
+	  streamer.
+
+2011-03-02 14:02  robert
+
+	* README, build.xml, lib, spritemap.xml, src, src/dk, src/dk/cego,
+	  src/dk/cego/spritemapper,
+	  src/dk/cego/spritemapper/GuillotineLayouter.java,
+	  src/dk/cego/spritemapper/JSONSpriteMapperMetaStream.java,
+	  src/dk/cego/spritemapper/ObjectHandler.java,
+	  src/dk/cego/spritemapper/Rectangle.java,
+	  src/dk/cego/spritemapper/Shelf.java,
+	  src/dk/cego/spritemapper/ShelfLayouter.java,
+	  src/dk/cego/spritemapper/Sprite.java,
+	  src/dk/cego/spritemapper/SpriteLayouter.java,
+	  src/dk/cego/spritemapper/SpriteMapper.java,
+	  src/dk/cego/spritemapper/SpriteMapperMetaStream.java,
+	  src/dk/cego/spritemapper/SpriteMapperTask.java,
+	  src/dk/cego/spritemapper/ZwoptexMetaStream.java,
+	  src/dk/cego/spritemapper/guillotine,
+	  src/dk/cego/spritemapper/guillotine/BestFitChooser.java,
+	  src/dk/cego/spritemapper/guillotine/FreeSpaceChooser.java,
+	  src/dk/cego/spritemapper/guillotine/FreeSpaceSplitStrategy.java,
+	  src/dk/cego/spritemapper/guillotine/LongestAxisSplitStrategy.java,
+	  src/dk/cego/spritemapper/guillotine/ShortestAxisSplitStrategy.java,
+	  src/dk/cego/spritemapper/spritecomparators,
+	  src/dk/cego/spritemapper/spritecomparators/AreaComparator.java,
+	  src/dk/cego/spritemapper/spritecomparators/HeightComparator.java,
+	  src/dk/cego/spritemapper/spritecomparators/WidthComparator.java,
+	  src/dk/cego/spritemapper/spritehandlers,
+	  src/dk/cego/spritemapper/spritehandlers/Landscape.java,
+	  src/dk/cego/spritemapper/spritehandlers/Portrait.java, tasks:
+	  Added first version of the sprite mapper code.
+
+2011-03-02 12:40  robert
+
+	* .: Created project for the sprite mapper.
+

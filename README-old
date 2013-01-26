@@ -1,0 +1,9 @@
+Todo
+----
+
+* Remove identical (after trimming)
+* GUI
+* Exporters for Zwoptex (both formats) and TexturePacker
+* Generally better architecture
+* Class that tries out different algorithms with different heuristics
+  and tells you the best one for your specific set of inputs.

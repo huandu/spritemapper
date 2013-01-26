@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="spritemap" basedir="." default="spritemaps">
+    <taskdef resource="spritemapper-tasks"/>
+    <property name="frames" value="true"/>
+    <property name="maxwidth" value="1200"/>
+    <property name="graphics" value="graphics"/>
+
+    <target name="spritemaps" depends="spritemap_trim,spritemap_notrim"/>
+
+    <target name="spritemap_trim">
+        <spritemap drawframes="${frames}" maxwidth="${maxwidth}" destfile="trim_map.png">
+            <layoutmeta destfile="trim_map.plist" format="zwoptex2"/>
+            <fileset dir="${graphics}">
+                <include name="**/*.png"/>
+            </fileset>
+        </spritemap>
+    </target>
+
+    <target name="spritemap_notrim">
+        <spritemap trim="false" drawframes="${frames}" maxwidth="${maxwidth}" destfile="notrim_map.png">
+            <layoutmeta destfile="notrim_map.plist" format="zwoptex2"/>
+            <fileset dir="${graphics}">
+                <include name="**/*.png"/>
+            </fileset>
+        </spritemap>
+    </target>
+</project>
