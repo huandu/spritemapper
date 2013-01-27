@@ -15,8 +15,8 @@ There is also a simplified version located at doc/index.html. I've updated this 
 Changes in this fork:
 
 1. Add a new option --reserve-border to reserve 1px transparent border among all sprites in a map.
-2. Width and height of output sprite map file are *always* POT (power of two) value.
-3. Change layout algorithm selection logic. If several layouters can generate same area size map file, new logic ensures the one generates smallest map width will be chosen.
+2. Width and height of output sprite map file are *always* POT (power of two) values.
+3. Optimize layouter selection logic. If several layouters can generate map file in same area size, new logic ensures the one generates the smallest map height will be chosen. It can prevent height of generated map file exceeds 1024 pixel in several cases.
 
 License
 =======
