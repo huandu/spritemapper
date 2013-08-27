@@ -28,7 +28,7 @@ Step 3: Make your first sprite map with Sprite Mapper.
 
 ```
 java -jar dist/SpriteMapper.jar \
-	--cocos2d=my_first.plist --out=my_first.png \
+	--zwoptex=my_first.plist --out=my_first.png \
 	--max-width=1024 --pot-size \
 	path/to/your/sprites/dir
 ```
@@ -84,7 +84,6 @@ Input options:
 
 Metadata options:
     --zwoptex2=zwoptex2.plist  - Output metadata in Zwoptex2 general plist format.
-    --cocos2d=cocos2d.plist    - Output metadata in cocos2d plist format.
     --reserve-dir-name=false   - Reserve dir name for frame keys in metadata file.
 
 Packing options:
