@@ -21,9 +21,9 @@ import dk.cego.spritemapper.Rectangle;
 import dk.cego.spritemapper.Sprite;
 
 public class LongestLeftoverAxisSplitStrategy implements FreeSpaceSplitStrategy {
-    public FreeSpaceSplitStrategy.Split chooseSplit(Rectangle r, Sprite s) {
-        int leftoverWidth = r.w - s.w;
-        int leftoverHeight = r.h - s.h;
+    public FreeSpaceSplitStrategy.Split chooseSplit(Rectangle r, Sprite s, int spacing) {
+        int leftoverWidth = r.w - s.w - spacing;
+        int leftoverHeight = r.h - s.h - spacing;
         return leftoverWidth > leftoverHeight ? FreeSpaceSplitStrategy.Split.HORIZONTALLY : FreeSpaceSplitStrategy.Split.VERTICALLY;
     }
 }

@@ -21,18 +21,30 @@ import dk.cego.spritemapper.SpriteLayouter;
 import dk.cego.spritemapper.Sprite;
 import java.util.List;
 
-public class ShelfLayouter implements SpriteLayouter {
+public class ShelfLayouter extends SpriteLayouter {
     public void layout(int maxWidth, List<Sprite> sprites) {
         int x = 0, y = 0, nextY = 0;
+        int spacing = getSpacing();
+
         for (Sprite s : sprites) {
             if (x + s.w > maxWidth) {
-                x = 0;
-                y = nextY;
+                // try to rotate sprite.
+                if (x + s.h <= maxWidth) {
+                    s.rotate();
+                } else {
+                    x = 0;
+                    y = nextY;
+
+                    if (s.w > maxWidth && s.h <= maxWidth) {
+                        s.rotate();
+                    }
+                }
             }
+
             s.x = x;
             s.y = y;
-            x = s.right();
-            nextY = Math.max(nextY, s.bottom());
+            x = s.right() + spacing;
+            nextY = Math.max(nextY, s.bottom() + spacing);
         }
     }
 

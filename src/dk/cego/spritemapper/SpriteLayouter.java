@@ -19,6 +19,35 @@ package dk.cego.spritemapper;
 
 import java.util.List;
 
-public interface SpriteLayouter {
-    public void layout(int maxWidth, List<Sprite> sprites);
+public abstract class SpriteLayouter {
+	private int spacing = 0;
+    private int border = 0;
+
+    public abstract void layout(int maxWidth, List<Sprite> sprites);
+
+    public SpriteLayouter setSpacing(int spacing) {
+    	if (spacing < 0) {
+    		spacing = 0;
+    	}
+
+    	this.spacing = spacing;
+    	return this;
+    }
+
+    public int getSpacing() {
+    	return this.spacing;
+    }
+
+    public SpriteLayouter setBorder(int border) {
+        if (border < 0) {
+            border = 0;
+        }
+
+        this.border = border;
+        return this;
+    }
+
+    public int getBorder() {
+        return this.border;
+    }
 }

@@ -29,7 +29,7 @@ import dk.cego.spritemapper.Sprite;
 import dk.cego.spritemapper.Rectangle;
 import dk.cego.spritemapper.SpriteLayouter;
 
-public class MaxRectsLayouter implements SpriteLayouter {
+public class MaxRectsLayouter extends SpriteLayouter {
     private int maxHeight;
     private FreeSpaceChooser freeSpaceChooser = null;
 
@@ -105,7 +105,7 @@ public class MaxRectsLayouter implements SpriteLayouter {
         }
     }
 
-    private static List<Rectangle> slice(Rectangle r, Sprite s) {
+    private List<Rectangle> slice(Rectangle r, Sprite s) {
         List<Rectangle> result = new ArrayList<Rectangle>(4);
 
         Rectangle re;
@@ -117,19 +117,19 @@ public class MaxRectsLayouter implements SpriteLayouter {
         return result;
     }
 
-    private static Rectangle sliceNorth(Rectangle r, Sprite s) {
+    private Rectangle sliceNorth(Rectangle r, Sprite s) {
         return new Rectangle(r.x, r.y, r.w, s.y - r.y);
     }
 
-    private static Rectangle sliceSouth(Rectangle r, Sprite s) {
-        return new Rectangle(r.x, s.bottom(), r.w, r.bottom() - s.bottom());
+    private Rectangle sliceSouth(Rectangle r, Sprite s) {
+        return new Rectangle(r.x, s.bottom() + getSpacing(), r.w, r.bottom() - s.bottom() - getSpacing());
     }
 
-    private static Rectangle sliceWest(Rectangle r, Sprite s) {
+    private Rectangle sliceWest(Rectangle r, Sprite s) {
         return new Rectangle(r.x, r.y, s.x - r.x, r.h);
     }
 
-    private static Rectangle sliceEast(Rectangle r, Sprite s) {
-        return new Rectangle(s.right(), r.y, r.right() - s.right(), r.h);
+    private Rectangle sliceEast(Rectangle r, Sprite s) {
+        return new Rectangle(s.right() + getSpacing(), r.y, r.right() - s.right() - getSpacing(), r.h);
     }
 }

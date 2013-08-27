@@ -36,7 +36,6 @@ public class FormatOutput {
         mapper.setMetaStreamer(getStreamer(mapper)).doMetaStream(new FileOutputStream(out));
     }
 
-
     private SpriteMapperMetaStream getStreamer(SpriteMapper mapper) throws Exception {
         if (format.equals("zwoptex2")) {
 

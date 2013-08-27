@@ -1,0 +1,7 @@
+Todo
+----
+
+* Exporters for Zwoptex (both formats) and TexturePacker
+* Remove identical (after trimming)
+* GUI
+* Generally better architecture

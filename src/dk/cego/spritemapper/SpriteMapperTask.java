@@ -89,7 +89,8 @@ public class SpriteMapperTask extends Task {
             for (FileSet fs : fileSets) {
                 DirectoryScanner ds = fs.getDirectoryScanner();
                 for (String path : ds.getIncludedFiles()) {
-                    sprites.add(importer.importSprite(ds.getBasedir(), path));
+                    File file = new File(ds.getBasedir(), path);
+                    sprites.add(importer.importSprite(file, path));
                 }
             }
 
@@ -157,7 +158,6 @@ public class SpriteMapperTask extends Task {
 
         private SpriteMapperMetaStream getStreamer(SpriteMapper mapper) {
             if (format.equals("zwoptex2")) {
-                
                 return new Zwoptex2MetaStream(SpriteMapperTask.this.destFile.getName(), mapper.getLayoutDimension());
             }
 

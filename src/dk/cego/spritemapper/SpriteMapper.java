@@ -31,7 +31,6 @@ public class SpriteMapper {
     private List<Sprite> sprites;
 
     private boolean trim = true;
-    private boolean reserveBorder = false;
     private ObjectHandler<Sprite> spritePreHandler = null;
     private Comparator<Sprite> spriteSorter = null;
     private SpriteLayouter layouter = null;
@@ -43,11 +42,6 @@ public class SpriteMapper {
 
     public SpriteMapper setTrim(boolean trim) {
         this.trim = trim;
-        return this;
-    }
-
-    public SpriteMapper setReserveBorder(boolean reserveBorder) {
-        this.reserveBorder = reserveBorder;
         return this;
     }
 
@@ -73,7 +67,7 @@ public class SpriteMapper {
 
     public SpriteMapper doLayout(int maxWidth) {
         if (trim) {
-            forEachSprite(new SpriteTrimmer().setReserveBorder(reserveBorder));
+            forEachSprite(new SpriteTrimmer().setTrimTransparent(trim));
         }
 
         if (spritePreHandler != null) {
@@ -124,7 +118,9 @@ public class SpriteMapper {
         //Draw the sprites
         Dimension d = Sprite.dimension(sprites);
         BufferedImage result = new BufferedImage(d.width, d.height, BufferedImage.TYPE_INT_ARGB);
-        paint((Graphics2D)result.getGraphics(), drawFrames);
+        Graphics2D graphics = result.createGraphics();
+        paint(graphics, drawFrames);
+        graphics.dispose();
         return result;
     }
 

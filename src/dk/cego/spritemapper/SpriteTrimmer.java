@@ -20,18 +20,24 @@ package dk.cego.spritemapper;
 import java.awt.image.Raster;
 import java.awt.image.BufferedImage;
 import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
 
 public class SpriteTrimmer implements ObjectHandler<Sprite> {
-    private boolean reserveBorder = false;
+    private boolean trim = false;
 
-    public SpriteTrimmer setReserveBorder(boolean reserveBorder) {
-        this.reserveBorder = reserveBorder;
+    public SpriteTrimmer setTrimTransparent(boolean trim) {
+        this.trim = trim;
         return this;
     }
 
     public void handle(Sprite s) {
         Raster r = s.image.getAlphaRaster();
-        if (r != null) {
+
+        if (r == null) {
+            return;
+        }
+
+        if (this.trim) {
             int alpha[] = r.getPixels(0, 0, r.getWidth(), r.getHeight(), new int[r.getWidth() * r.getHeight()]);
             int w = r.getWidth();
             int h = r.getHeight();
@@ -56,7 +62,7 @@ public class SpriteTrimmer implements ObjectHandler<Sprite> {
                     }
                 }
             }
-            s.colorRect.w = Math.max(1, x - s.colorRect.x + 1);
+            s.colorRect.w = Math.max(0, x - s.colorRect.x);
 
             //Find top
             outer:
@@ -78,34 +84,20 @@ public class SpriteTrimmer implements ObjectHandler<Sprite> {
                     }
                 }
             }
-            s.colorRect.h = Math.max(1, y - s.colorRect.y + 1);
-
-            // reserve 1px transparent border at right and bottom for every image.
-            // in cocos2d, texture mapper always has 1px error.
-            // it's a way to work it around.
-            if (reserveBorder) {
-                if (s.colorRect.w < w) {
-                    s.colorRect.w++;
-                }
-
-                if (s.colorRect.h < h) {
-                    s.colorRect.h++;
-                }
-            }
-
-            if (s.colorRect.w != s.w || s.colorRect.h != s.h) {
-                BufferedImage trimmed = new BufferedImage(s.colorRect.w, s.colorRect.h, BufferedImage.TYPE_INT_ARGB);
-                Graphics2D g = (Graphics2D)trimmed.getGraphics();
-                g.drawImage(s.image,
-                    0, 0, trimmed.getWidth(), trimmed.getHeight(),
-                    s.colorRect.left(), s.colorRect.top(), s.colorRect.right(), s.colorRect.bottom(),
-                    null);
-                g.dispose();
-
-                s.image = trimmed;
-                s.w = s.colorRect.w;
-                s.h = s.colorRect.h;
-            }
+            s.colorRect.h = Math.max(0, y - s.colorRect.y);
         }
+
+        if (s.colorRect.w == s.w && s.colorRect.h == s.h) {
+            return;
+        }
+
+        BufferedImage trimmed = new BufferedImage(s.colorRect.w, s.colorRect.h, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = trimmed.createGraphics();
+        g.drawImage(s.image, new AffineTransform(1f, 0f, 0f, 1f, 0f, 0f), null);
+        g.dispose();
+
+        s.image = trimmed;
+        s.w = trimmed.getWidth();
+        s.h = trimmed.getHeight();
     }
 }

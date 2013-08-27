@@ -21,14 +21,31 @@ import dk.cego.spritemapper.guillotine.OptimalGuillotineLayouter;
 import dk.cego.spritemapper.shelf.ShelfLayouter;
 import dk.cego.spritemapper.maxrects.OptimalMaxRectsLayouter;
 
+import java.util.Map;
+import java.util.TreeMap;
+
 /**
  * This layouter knows all the different algorithms and chooses
  * the best one for the specific set of sprites.
  */
 public class OptimalAlgorithmLayouter extends OptimalLayouter {
+	private Map<String, SpriteLayouter> layouterNames;
+
     public OptimalAlgorithmLayouter() {
-        add(new OptimalGuillotineLayouter());
-        add(new ShelfLayouter());
-        add(new OptimalMaxRectsLayouter());
+    	layouterNames = new TreeMap<String, SpriteLayouter>();
+    	layouterNames.put("guillotine", new OptimalGuillotineLayouter());
+    	layouterNames.put("shelf", new ShelfLayouter());
+    	layouterNames.put("maxrects", new OptimalMaxRectsLayouter());
+    }
+
+    public boolean add(String algorithmName) {
+    	SpriteLayouter layouter = layouterNames.get(algorithmName);
+
+    	if (layouter == null) {
+    		return false;
+    	}
+
+    	add(layouter);
+    	return true;
     }
 }

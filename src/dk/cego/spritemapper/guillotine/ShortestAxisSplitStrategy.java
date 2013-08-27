@@ -21,7 +21,7 @@ import dk.cego.spritemapper.Rectangle;
 import dk.cego.spritemapper.Sprite;
 
 public class ShortestAxisSplitStrategy implements FreeSpaceSplitStrategy {
-    public FreeSpaceSplitStrategy.Split chooseSplit(Rectangle r, Sprite s) {
+    public FreeSpaceSplitStrategy.Split chooseSplit(Rectangle r, Sprite s, int spacing) {
         return r.w < r.h ? FreeSpaceSplitStrategy.Split.HORIZONTALLY : FreeSpaceSplitStrategy.Split.VERTICALLY;
     }
 }

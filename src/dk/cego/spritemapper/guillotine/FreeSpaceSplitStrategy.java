@@ -26,5 +26,5 @@ public interface FreeSpaceSplitStrategy {
         VERTICALLY
     };
 
-    public Split chooseSplit(Rectangle r, Sprite s);
+    public Split chooseSplit(Rectangle r, Sprite s, int spacing);
 }

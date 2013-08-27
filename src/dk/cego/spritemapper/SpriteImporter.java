@@ -22,6 +22,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import java.util.List;
 import java.util.LinkedList;
+import java.util.Arrays;
 
 public class SpriteImporter {
     private ObjectHandler<File> fileHandler;
@@ -47,19 +48,58 @@ public class SpriteImporter {
         return this;
     }
 
-    public List<Sprite> importSprites(File base, Iterable<File> files) throws IOException {
+    public List<Sprite> importSprites(File base, Iterable<File> files, Boolean reserveDirName) throws IOException {
         List<Sprite> result = new LinkedList<Sprite>();
+        String baseDir = base.getCanonicalPath();
+        String separator = "\\" + File.separator;
+        String[] baseDirParts = null;
+
         for (File f : files) {
-            String path = f.getCanonicalPath().substring(base.getCanonicalPath().length() + 1);
-            result.add(importSprite(base, path));
+            String filePath = f.getCanonicalPath();
+            String path;
+
+            if (reserveDirName) {
+                // file path likely starts with base dir.
+                if (filePath.startsWith(baseDir)) {
+                    path = filePath.substring(baseDir.length() + 1);
+                } else {
+                    if (baseDirParts == null) {
+                        baseDirParts = baseDir.split(separator);
+                    }
+
+                    String[] parts = filePath.split(separator);
+                    int start = 0;
+
+                    for (; start < parts.length && start < baseDirParts.length; start++) {
+                        if (parts[start] != baseDirParts[start]) {
+                            break;
+                        }
+                    }
+
+                    // i don't know why java doesn't have built-in array join and slice.
+                    if (start < parts.length) {
+                        path = parts[start];
+
+                        for (int i = start + 1; i < parts.length; i++) {
+                            path += File.separator + parts[i];
+                        }
+                    } else {
+                        path = "";
+                    }
+                }
+            } else {
+                path = filePath.substring(filePath.lastIndexOf(File.separator) + 1);
+            }
+
+            result.add(importSprite(f, path));
         }
+
         return result;
     }
 
-    public Sprite importSprite(File baseDir, String path) throws IOException {
-        File f = new File(baseDir, path);
-        fileHandler.handle(f);
-        Sprite s = new Sprite(path, ImageIO.read(f));
+    public Sprite importSprite(File file, String name) throws IOException {
+        fileHandler.handle(file);
+        Sprite s = new Sprite(name, ImageIO.read(file));
         spriteHandler.handle(s);
         return s;
     }

@@ -31,11 +31,11 @@ public class MinimumAreaDifferenceSplitStrategy implements FreeSpaceSplitStrateg
         areas = new Rectangle[2];
     }
 
-    public FreeSpaceSplitStrategy.Split chooseSplit(Rectangle r, Sprite s) {
-        GuillotineLayouter.splitVertically(areas, r, s);
+    public FreeSpaceSplitStrategy.Split chooseSplit(Rectangle r, Sprite s, int spacing) {
+        GuillotineLayouter.splitVertically(areas, r, s, spacing);
         int verticalSplitAreaDiff = Math.abs(areas[0].area() - areas[1].area());
 
-        GuillotineLayouter.splitHorizontally(areas, r, s);
+        GuillotineLayouter.splitHorizontally(areas, r, s, spacing);
         int horizontalSplitAreaDiff = Math.abs(areas[0].area() - areas[1].area());
 
         return verticalSplitAreaDiff < horizontalSplitAreaDiff ? FreeSpaceSplitStrategy.Split.VERTICALLY : FreeSpaceSplitStrategy.Split.HORIZONTALLY;

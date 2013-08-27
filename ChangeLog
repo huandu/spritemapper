@@ -1,10 +1,37 @@
+2013-08-27 17:11  huandu
+
+	* src/dk/cego/spritemapper/OptimalAlgorithmLayouter.java
+	  src/dk/cego/spritemapper/OptimalLayouter.java
+	  src/dk/cego/spritemapper/Sprite.java
+	  src/dk/cego/spritemapper/SpriteImporter.java
+	  src/dk/cego/spritemapper/SpriteLayouter.java
+	  src/dk/cego/spritemapper/SpriteMapper.java
+	  src/dk/cego/spritemapper/SpriteMapperCLI.java
+	  src/dk/cego/spritemapper/SpriteMapperTask.java
+	  src/dk/cego/spritemapper/SpriteTrimmer.java
+	  src/dk/cego/spritemapper/guillotine/FreeSpaceSplitStrategy.java
+	  src/dk/cego/spritemapper/guillotine/GuillotineLayouter.java
+	  src/dk/cego/spritemapper/guillotine/LongestAxisSplitStrategy.java
+	  src/dk/cego/spritemapper/guillotine/LongestLeftoverAxisSplitStrategy.java
+	  src/dk/cego/spritemapper/guillotine/MaximumAreaDifferenceSplitStrategy.java
+	  src/dk/cego/spritemapper/guillotine/MinimumAreaDifferenceSplitStrategy.java
+	  src/dk/cego/spritemapper/guillotine/ShortestAxisSplitStrategy.java
+	  src/dk/cego/spritemapper/guillotine/ShortestLeftoverAxisSplitStrategy.java
+	  src/dk/cego/spritemapper/maxrects/MaxRectsLayouter.java
+	  src/dk/cego/spritemapper/shelf/ShelfLayouter.java:
+	  Many changes to command line options and algorithms.
+	  Add new options --reserve-dir-name --algorithm --pot-size --spacing --border.
+      Update documents.
+	  Fix bugs in spacing and layouter.
+
 2012-12-02 14:50  huandu
 
 	* src/dk/cego/spritemapper/OptimalAlgorithmLayouter.java,
 	  src/dk/cego/spritemapper/OptimalLayouter.java,
 	  src/dk/cego/spritemapper/SpriteMapper.java,
 	  src/dk/cego/spritemapper/SpriteMapperCLI.java,
-	  src/dk/cego/spritemapper/SpriteTrimmer.java: Force output image file width/height has POT value.
+	  src/dk/cego/spritemapper/SpriteTrimmer.java:
+	  Force output image file width/height has POT value.
 	  And add a new option to generate 1px transparent border for each sprite to avoid OpenGl ES mapping error.
 
 2011-09-28 15:29  robert

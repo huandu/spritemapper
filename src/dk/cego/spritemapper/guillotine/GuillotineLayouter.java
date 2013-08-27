@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class GuillotineLayouter implements SpriteLayouter {
+public class GuillotineLayouter extends SpriteLayouter {
     private int maxHeight;
     private FreeSpaceChooser freeSpaceChooser = null;
     private FreeSpaceSplitStrategy freeSpaceSplitter = null;
@@ -65,6 +65,7 @@ public class GuillotineLayouter implements SpriteLayouter {
     }
 
     public void layout(int maxWidth, List<Sprite> sprites) {
+        int spacing = getSpacing();
         List<Rectangle> freeSpaces = new ArrayList<Rectangle>();
         freeSpaces.add(new Rectangle(0, 0, maxWidth, maxHeight));
         FreeSpaceComparator comparator = new FreeSpaceComparator(freeSpaceChooser);
@@ -101,11 +102,11 @@ public class GuillotineLayouter implements SpriteLayouter {
             newFree[1] = null;
             FreeSpaceSplitStrategy.Split split = freeSpaceSplitter == null ? 
                     FreeSpaceSplitStrategy.Split.HORIZONTALLY : 
-                    freeSpaceSplitter.chooseSplit(chosenSpace, s);
+                    freeSpaceSplitter.chooseSplit(chosenSpace, s, spacing);
             if (split == FreeSpaceSplitStrategy.Split.HORIZONTALLY) {
-                splitHorizontally(newFree, chosenSpace, s);
+                splitHorizontally(newFree, chosenSpace, s, spacing);
             } else {
-                splitVertically(newFree, chosenSpace, s);
+                splitVertically(newFree, chosenSpace, s, spacing);
             }
 
             //Add the ones that have an area larger than 0
@@ -117,28 +118,28 @@ public class GuillotineLayouter implements SpriteLayouter {
         }
     }
 
-    static void splitVertically(Rectangle rects[], Rectangle r, Sprite s) {
+    public static void splitVertically(Rectangle rects[], Rectangle r, Sprite s, int spacing) {
         if (rects[0] == null) {
             rects[0] = new Rectangle(0,0,0,0);
         }
-        rects[0].x = r.x + s.w; rects[0].y = r.y; rects[0].w = r.w - s.w; rects[0].h = r.h;
+        rects[0].x = r.x + s.w + spacing; rects[0].y = r.y; rects[0].w = r.w - s.w - spacing; rects[0].h = r.h;
 
         if (rects[1] == null) {
             rects[1] = new Rectangle(0,0,0,0);
         }
-        rects[1].x = r.x; rects[1].y = r.y + s.h; rects[1].w = s.w; rects[1].h = r.h - s.h;
+        rects[1].x = r.x; rects[1].y = r.y + s.h + spacing; rects[1].w = s.w + spacing; rects[1].h = r.h - s.h - spacing;
     }
 
-    static void splitHorizontally(Rectangle rects[], Rectangle r, Sprite s) {
+    public static void splitHorizontally(Rectangle rects[], Rectangle r, Sprite s, int spacing) {
         if (rects[0] == null) {
             rects[0] = new Rectangle(0,0,0,0);
         }
-        rects[0].x = r.x + s.w; rects[0].y = r.y; rects[0].w = r.w - s.w; rects[0].h = s.h;
+        rects[0].x = r.x + s.w + spacing; rects[0].y = r.y; rects[0].w = r.w - s.w - spacing; rects[0].h = s.h + spacing;
 
         if (rects[1] == null) {
             rects[1] = new Rectangle(0,0,0,0);
         }
-        rects[1].x = r.x; rects[1].y = r.y + s.h; rects[1].w = r.w; rects[1].h = r.h - s.h;
+        rects[1].x = r.x; rects[1].y = r.y + s.h + spacing; rects[1].w = r.w; rects[1].h = r.h - s.h - spacing;
     }
 }
 

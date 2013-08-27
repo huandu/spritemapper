@@ -78,21 +78,7 @@ public class Sprite extends Rectangle {
             d.height = Math.max(d.height, s.bottom());
         }
 
-        // make dimension to POT number
-        d.width = toPOT(d.width);
-        d.height = toPOT(d.height);
-
         return d;
-    }
-
-    private final static int toPOT(int num) {
-        num -= 1;
-        num |= num >>> 1;
-        num |= num >>> 2;
-        num |= num >>> 4;
-        num |= num >>> 8;
-        num |= num >>> 16;
-        return num + 1;
     }
 
     public final static int collectiveArea(List<Sprite> sprites) {
