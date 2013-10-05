@@ -38,10 +38,11 @@ public class SpriteTrimmer implements ObjectHandler<Sprite> {
         }
 
         if (this.trim) {
-            int alpha[] = r.getPixels(0, 0, r.getWidth(), r.getHeight(), new int[r.getWidth() * r.getHeight()]);
             int w = r.getWidth();
             int h = r.getHeight();
-            int x, y;
+            int alpha[] = r.getPixels(0, 0, w, h, new int[w * h]);
+            int x, y, left, top;
+
             //Find left
             outer:
             for (x = 0; x < w; x++) {
@@ -51,18 +52,31 @@ public class SpriteTrimmer implements ObjectHandler<Sprite> {
                     }
                 }
             }
+
+            // Image is full transparent.
+            if (x == w) {
+                s.colorRect.x = 0;
+                s.colorRect.y = 0;
+                s.colorRect.w = 0;
+                s.colorRect.h = 0;
+                s.w = 0;
+                s.h = 0;
+                return;
+            }
+
+            left = x;
             s.colorRect.x = x;
 
             //Find right
             outer:
-            for (x = w - 1; x >= 0; x--) {
+            for (x = w - 1; x > left; x--) {
                 for (y = 0; y < h; y++) {
                     if (alpha[y * w + x] > 0) {
                         break outer;
                     }
                 }
             }
-            s.colorRect.w = Math.max(0, x - s.colorRect.x);
+            s.colorRect.w = x - left + 1;
 
             //Find top
             outer:
@@ -73,18 +87,20 @@ public class SpriteTrimmer implements ObjectHandler<Sprite> {
                     }
                 }
             }
+
+            top = y;
             s.colorRect.y = y;
 
             //Find bottom
             outer:
-            for (y = h - 1; y >= 0; y--) {
+            for (y = h - 1; y > top; y--) {
                 for (x = 0; x < w; x++) {
                     if (alpha[y * w + x] > 0) {
                         break outer;
                     }
                 }
             }
-            s.colorRect.h = Math.max(0, y - s.colorRect.y);
+            s.colorRect.h = y - top + 1;
         }
 
         if (s.colorRect.w == s.w && s.colorRect.h == s.h) {
