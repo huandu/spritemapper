@@ -19,7 +19,6 @@ package dk.cego.spritemapper;
 
 import java.awt.image.BufferedImage;
 import java.awt.Dimension;
-import java.awt.Graphics2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
@@ -235,7 +234,7 @@ public class SpriteMapperCLI {
     	}
         
     	// draw images.
-        List<BufferedImage> images = mapper.getImages(dimensions, drawFrames);
+        List<BufferedImage> images = mapper.getImages(dimensions, getImageType(format), drawFrames);
     	OutputFilename outFilename = OutputFilename.parseString(out);
     	outFilename.setMaxNumber(dimensions.length);
         

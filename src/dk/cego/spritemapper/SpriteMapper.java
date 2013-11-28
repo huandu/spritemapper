@@ -107,7 +107,7 @@ public class SpriteMapper {
         return this;
     }
 
-	public List<BufferedImage> getImages(Dimension[] dimensions, boolean drawFrames) {
+	public List<BufferedImage> getImages(Dimension[] dimensions, int imageType, boolean drawFrames) {
         //Draw the sprites
         List<BufferedImage> images = new ArrayList<BufferedImage>(dimensions.length);
         Graphics2D[] graphics = new Graphics2D[dimensions.length];
