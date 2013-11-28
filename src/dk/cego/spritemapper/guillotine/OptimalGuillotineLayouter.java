@@ -23,7 +23,6 @@ import dk.cego.spritemapper.util.BestShortSideChooser;
 import dk.cego.spritemapper.util.BestLongSideChooser;
 import dk.cego.spritemapper.util.TopLeftChooser;
 import dk.cego.spritemapper.OptimalLayouter;
-import dk.cego.spritemapper.Sprite;
 
 /**
  * This class knows all the different heuristics for the Guillotine layout

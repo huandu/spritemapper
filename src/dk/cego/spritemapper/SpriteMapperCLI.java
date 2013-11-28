@@ -34,6 +34,7 @@ import javax.imageio.ImageIO;
 import dk.cego.spritemapper.cli.*;
 import dk.cego.spritemapper.spritehandlers.*;
 import dk.cego.spritemapper.spritecomparators.*;
+import dk.cego.spritemapper.util.OutputFilename;
 
 class ArgumentException extends Exception {
     // it's a fake version uid. however, javac requires it. 
@@ -48,6 +49,7 @@ public class SpriteMapperCLI {
     private final static String DEFAULT_FILE_MATCHER = "\\.((png)|(jpe?g)|(gif))$";
     private final static String OPTION_ARGUMENT_PATTERN = "^--([^=]+)(=(.*))?$";
     private final static int DEFAULT_IMAGE_WIDTH = 1024;
+    private final static int DEFAULT_IMAGE_HEIGHT = 0;
     private final static String DEFAULT_BASE_DIR = ".";
     private final static String DEFAULT_ZWOPTEX2_PLIST_NAME = "zwoptex2.plist";
     private final static String DEFAULT_OUTPUT_NAME = "spritemap.png";
@@ -61,12 +63,13 @@ public class SpriteMapperCLI {
         }
 
         List<FormatOutput> metaOut = new LinkedList<FormatOutput>();
-        File out = new File(DEFAULT_OUTPUT_NAME);
+        String out =DEFAULT_OUTPUT_NAME;
         File baseDir = new File(DEFAULT_BASE_DIR);
         List<File> images = new LinkedList<File>();
         OptimalAlgorithmLayouter layouter = new OptimalAlgorithmLayouter();
 
         int maxWidth = DEFAULT_IMAGE_WIDTH;
+        int maxHeight = DEFAULT_IMAGE_HEIGHT;
         boolean usePOTSize = false;
         boolean drawFrames = false;
         boolean trim = true;
@@ -106,13 +109,13 @@ public class SpriteMapperCLI {
                 } else if (option.equals("file-pattern")) {
                     fileMatcherRegex = new RegexFileMatcher(argument(arg, DEFAULT_FILE_MATCHER));
                 } else if (option.equals("zwoptex2")) {
-                    metaOut.add(new FormatOutput("zwoptex2", new File(argument(arg, DEFAULT_ZWOPTEX2_PLIST_NAME))));
+                    metaOut.add(new FormatOutput("zwoptex2", argument(arg, DEFAULT_ZWOPTEX2_PLIST_NAME)));
                 } else if (option.equals("reserve-dir-name")) {
                     reserveDirName = Boolean.parseBoolean(argument(arg, "true"));
 
                 // metadata options.
                 } else if (option.equals("out")) {
-                    out = new File(argument(arg, DEFAULT_OUTPUT_NAME));
+                    out = argument(arg, DEFAULT_OUTPUT_NAME);
                 } else if (option.equals("algorithm")) {
                     algorithm = argument(arg);
                 } else if (option.equals("max-width")) {
@@ -120,6 +123,12 @@ public class SpriteMapperCLI {
 
                     if (maxWidth < 0) {
                         maxWidth = 0;
+                    }
+                } else if (option.equals("max-height")) {
+                    maxHeight = Integer.parseInt(argument(arg));
+
+                    if (maxHeight < 0) {
+                        maxHeight = 0;
                     }
                 } else if (option.equals("pot-size")) {
                     usePOTSize = Boolean.parseBoolean(argument(arg, "true"));
@@ -204,40 +213,60 @@ public class SpriteMapperCLI {
         .setSpritePreHandler(new Landscape())
         .setSpriteSorter(new AreaComparator())
         .setLayouter(layouter)
-        .doLayout(maxWidth);
+        .doLayout(maxWidth, maxHeight);
 
-        // draw output image.
-        String fileFormat = fileExtension(out);
-        BufferedImage result = getImageForFormat(fileFormat, mapper.getLayoutDimension(), border, usePOTSize);
-        Graphics2D graphics = result.createGraphics();
-        graphics.translate(border, border);
-        mapper.paint(graphics, drawFrames);
-        graphics.dispose();
-        ImageIO.write(result, fileExtension(out), out);
+        // draw output image and write meta data.
+        writeOutput(out, mapper, metaOut, border, usePOTSize, drawFrames);
+    }
 
-        for (FormatOutput format : metaOut) {
+    private final static void writeOutput(String out, SpriteMapper mapper, List<FormatOutput> metaOut, int border, boolean usePOTSize, boolean drawFrames) {
+    	String format = fileExtension(out);
+    	Dimension[] dimensions = mapper.getLayoutDimension();
+
+    	// consider border and POT size options.
+    	for (Dimension d : dimensions) {
+    		d.width += 2 * border;
+            d.height += 2 * border;
+
+            if (usePOTSize) {
+                d.width = OptimalAlgorithmLayouter.toUpperPOT(d.width);
+                d.height = OptimalAlgorithmLayouter.toUpperPOT(d.height);
+            }
+    	}
+        
+    	// draw images.
+        List<BufferedImage> images = mapper.getImages(dimensions, drawFrames);
+    	OutputFilename outFilename = OutputFilename.parseString(out);
+    	outFilename.setMaxNumber(dimensions.length);
+        
+    	// save images to files.
+        for (BufferedImage img : images) {
+        	File outFile = new File(outFilename.filename());
+        	
             try {
-                format.writeMetaData(mapper);
+    			ImageIO.write(img, format, outFile);
+    		} catch (IOException e) {
+    			System.err.println(e);
+    			continue;
+    		}
+        }
+    	
+        // write meta files.
+    	for (FormatOutput output : metaOut) {
+            try {
+                output.writeMetaData(mapper, dimensions);
             } catch (Exception e) {
                 System.err.println(e);
             }
         }
     }
-
-    private final static BufferedImage getImageForFormat(String format, Dimension size, int border, boolean usePOTSize) {
-        size.width += 2 * border;
-        size.height += 2 * border;
-
-        if (usePOTSize) {
-            size.width = OptimalAlgorithmLayouter.toUpperPOT(size.width);
-            size.height = OptimalAlgorithmLayouter.toUpperPOT(size.height);
-        }
-
-        return new BufferedImage(
-            size.width,
-            size.height,
-            (format.equalsIgnoreCase("jpg") || format.equalsIgnoreCase("jpeg")) ? BufferedImage.TYPE_INT_RGB : BufferedImage.TYPE_INT_ARGB
-        );
+    
+    private final static int getImageType(String format) {
+    	if (format.equalsIgnoreCase("jpg") || format.equalsIgnoreCase("jpeg")) {
+    		return BufferedImage.TYPE_INT_RGB;
+    	}
+    	
+    	return BufferedImage.TYPE_INT_ARGB;
     }
 
     private final static void help() {
@@ -254,12 +283,20 @@ public class SpriteMapperCLI {
         System.out.println("    --zwoptex2=zwoptex2.plist  - Output metadata in Zwoptex2 general plist format.");
         System.out.println("    --reserve-dir-name=false   - Reserve dir name for frame keys in metadata file.");
         System.out.println("");
+        System.out.println("Output options:");
+        System.out.println("    --out=spritemap{n}.png     - Output sprite map to 'spritemap{n}.png'. '{n}' is output sequence number.");
+        System.out.println("                                 Sequence number stars with 0 by default. Use '{n1}' to make the number");
+        System.out.println("                                 start with 1 instead of 0.");
+        System.out.println("                                 If --max-height is 0 or files can be packed in one sprite map, sequence");
+        System.out.println("                                 number will become an empty string. Use '{n!}' to force generate a number.");
+        System.out.println("");
         System.out.println("Packing options:");
-        System.out.println("    --out=spritemap.png        - Output sprite map to 'spritemap.png'.");
         System.out.println("    --algorithm=maxrects       - Set packing algorithm. Can be 'maxrects', 'guillotine' and/or 'shelf'.");
         System.out.println("                                 Multiple algorithms can be used together, e.g. 'maxrects,guillotine,shelf'.");
         System.out.println("                                 The most optimal algorithm will be chosen for final output.");
-        System.out.println("    --max-width=1024           - Set maximum width of sprite map to 1024 pixels.");
+        System.out.println("    --max-width=1024           - Set maximum width. Default maximum width is 1024 pixels.");
+        System.out.println("    --max-height=0             - Set maximum height. Default maximum height is 0, which means no limit.");
+        System.out.println("                                 If image files cannot be packed into one sprite due to max height, ");
         System.out.println("    --pot-size=false           - Use POT (Power Of Two) value for width and height of sprite map.");
         System.out.println("    --draw-frames=false        - Draw frames around images in sprite map.");
         System.out.println("    --trim=true                - Trim transparent edges.");
@@ -270,8 +307,7 @@ public class SpriteMapperCLI {
         System.out.println("    --help                     - Show this help message.");
     }
 
-    private final static String fileExtension(File f) {
-        String name = f.getName();
+    private final static String fileExtension(String name) {
         int idx = name.lastIndexOf(".");
         return name.substring(idx + 1);
     }

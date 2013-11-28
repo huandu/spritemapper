@@ -25,15 +25,7 @@ import java.nio.charset.Charset;
 import java.util.List;
 
 public class Zwoptex2MetaStream implements SpriteMapperMetaStream {
-    private String filename;
-    private Dimension size;
-
-    public Zwoptex2MetaStream(String filename, Dimension size) {
-        this.filename = filename;
-        this.size = size;
-    }
-
-    public void write(List<Sprite> sprites, OutputStream out) throws IOException {
+    public void write(String filename, List<Sprite> sprites, int mapNumber, Dimension size, OutputStream out) throws IOException {
         // always use UTF-8. it's the only encoding supported by XCode 4.4
         Charset c = Charset.forName("UTF-8");
         OutputStreamWriter o = new OutputStreamWriter(out, c);
@@ -45,7 +37,12 @@ public class Zwoptex2MetaStream implements SpriteMapperMetaStream {
         o.write("        <dict>\n");
 
         for (Sprite s : sprites) {
+        	if (s.mapNumber != mapNumber) {
+        		continue;
+        	}
+        	
             Dimension d = new Dimension(s.w, s.h);
+            
             if (s.rotated) {
                 d.width = s.h;
                 d.height = s.w;

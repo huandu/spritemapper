@@ -23,7 +23,14 @@ public abstract class SpriteLayouter {
 	private int spacing = 0;
     private int border = 0;
 
-    public abstract void layout(int maxWidth, List<Sprite> sprites);
+    /**
+     * Do layout on given sprites and return number of sprite maps to contain all sprites.
+     * @param maxWidth max width for a sprite map. must be greater than 0.
+     * @param maxHeight max height for a sprite map. 0 means unlimited.
+     * @param sprites
+     * @return number of sprite map to contain all sprites.
+     */
+    public abstract int layout(int maxWidth, int maxHeight, List<Sprite> sprites);
 
     public SpriteLayouter setSpacing(int spacing) {
     	if (spacing < 0) {

@@ -21,9 +21,6 @@ package dk.cego.spritemapper.guillotine;
 import dk.cego.spritemapper.Rectangle;
 import dk.cego.spritemapper.Sprite;
 
-import dk.cego.spritemapper.Rectangle;
-import dk.cego.spritemapper.Sprite;
-
 public class MinimumAreaDifferenceSplitStrategy implements FreeSpaceSplitStrategy {
     private Rectangle areas[];
 

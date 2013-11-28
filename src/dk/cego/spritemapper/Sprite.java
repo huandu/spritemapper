@@ -24,6 +24,7 @@ import java.awt.image.BufferedImage;
 
 public class Sprite extends Rectangle {
     public String name;
+    public int mapNumber = 0;
     public BufferedImage image;
     public boolean rotated;
     public Rectangle colorRect;
@@ -71,14 +72,27 @@ public class Sprite extends Rectangle {
         return c;
     }
 
-    public final static Dimension dimension(List<Sprite> sprites) {
-        Dimension d = new Dimension(0, 0);
+    /**
+     * Calculate dimension of sprites.
+     * @param sprites
+     * @param maxMapNumber
+     * @return Dimension[] which contains maxMapNumber dimensions.
+     */
+    public final static Dimension[] dimensions(List<Sprite> sprites, int maxMapNumber) {
+        Dimension[] dimensions = new Dimension[maxMapNumber];
+        Dimension d = null;
+        
+        for (int i = 0; i < maxMapNumber; i++) {
+        	dimensions[i] = new Dimension();
+        }
+        
         for (Sprite s : sprites) {
+        	d = dimensions[s.mapNumber];
             d.width = Math.max(d.width, s.right());
             d.height = Math.max(d.height, s.bottom());
         }
 
-        return d;
+        return dimensions;
     }
 
     public final static int collectiveArea(List<Sprite> sprites) {

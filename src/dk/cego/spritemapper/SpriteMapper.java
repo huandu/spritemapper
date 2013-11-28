@@ -17,8 +17,10 @@
  */
 package dk.cego.spritemapper;
 
+import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Comparator;
 import java.util.Collections;
@@ -27,6 +29,8 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
+import dk.cego.spritemapper.util.OutputFilename;
+
 public class SpriteMapper {
     private List<Sprite> sprites;
 
@@ -34,7 +38,7 @@ public class SpriteMapper {
     private ObjectHandler<Sprite> spritePreHandler = null;
     private Comparator<Sprite> spriteSorter = null;
     private SpriteLayouter layouter = null;
-    private SpriteMapperMetaStream metaStreamer = null;
+    private int maxMapNumber = 0;
 
     public SpriteMapper(List<Sprite> sprites) {
         this.sprites = sprites;
@@ -50,11 +54,6 @@ public class SpriteMapper {
         return this;
     }
 
-    public SpriteMapper setMetaStreamer(SpriteMapperMetaStream streamer) {
-        this.metaStreamer = streamer;
-        return this;
-    }
-
     public SpriteMapper setSpritePreHandler(ObjectHandler<Sprite> spritePreHandler) {
         this.spritePreHandler = spritePreHandler;
         return this;
@@ -65,7 +64,7 @@ public class SpriteMapper {
         return this;
     }
 
-    public SpriteMapper doLayout(int maxWidth) {
+    public SpriteMapper doLayout(int maxWidth, int maxHeight) {
         if (trim) {
             forEachSprite(new SpriteTrimmer().setTrimTransparent(trim));
         }
@@ -79,49 +78,74 @@ public class SpriteMapper {
         }
 
         if (layouter != null) {
-            layouter.layout(maxWidth, sprites);
+            maxMapNumber = layouter.layout(maxWidth, maxHeight, sprites);
         }
 
         return this;
     }
 
-    public Dimension getLayoutDimension() {
-        return Sprite.dimension(sprites);
+    public Dimension[] getLayoutDimension() {
+    	if (maxMapNumber == 0) {
+    		return null;
+    	}
+    	
+    	return Sprite.dimensions(sprites, maxMapNumber);
     }
 
-    public SpriteMapper doMetaStream(OutputStream out) throws IOException {
-        if (metaStreamer != null) {
-            metaStreamer.write(sprites, out);
+    public SpriteMapper doMetaStream(SpriteMapperMetaStream stream, Dimension[] dimensions, OutputFilename output) throws IOException {
+        if (stream != null || dimensions.length < maxMapNumber) {
+        	output.setMaxNumber(maxMapNumber);
+        	output.resetCurrentNumber();
+        	
+        	for (int i = 0; i < maxMapNumber; i++) {
+        		String filename = output.filename();
+        		OutputStream out = new FileOutputStream(filename);
+            	stream.write(filename, sprites, i, dimensions[i], out);
+        	}
         }
+        
         return this;
     }
 
-    public SpriteMapper paint(Graphics2D g, boolean drawFrames) {
+	public List<BufferedImage> getImages(Dimension[] dimensions, boolean drawFrames) {
+        //Draw the sprites
+        List<BufferedImage> images = new ArrayList<BufferedImage>(dimensions.length);
+        Graphics2D[] graphics = new Graphics2D[dimensions.length];
+        int number = 0;
+        
+        for (Dimension d : dimensions) {
+	        BufferedImage image = new BufferedImage(d.width, d.height, BufferedImage.TYPE_INT_ARGB);
+	        images.add(image);
+	        graphics[number] = image.createGraphics();
+	        number++;
+        }
+        
+        Graphics2D g = null;
+        
         for (Sprite s : sprites) {
-            AffineTransform t = null;
+        	g = graphics[s.mapNumber];
+        	AffineTransform t = null;
             BufferedImage img = s.image;
+            
             if (s.rotated) {
                 t = new AffineTransform(0,1,-1,0,s.x + img.getHeight(), s.y);
             } else {
                 t = new AffineTransform(1,0,0,1,s.x,s.y);
             }
+            
             g.drawImage(img, t, null);
+            
             if (drawFrames) {
                 g.setColor(java.awt.Color.red);
                 g.drawRect(s.x, s.y, s.w - 1, s.h - 1);
             }
         }
-        return this;
-    }
-
-    public BufferedImage getImage(boolean drawFrames) {
-        //Draw the sprites
-        Dimension d = Sprite.dimension(sprites);
-        BufferedImage result = new BufferedImage(d.width, d.height, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D graphics = result.createGraphics();
-        paint(graphics, drawFrames);
-        graphics.dispose();
-        return result;
+        
+        for (int i = 0, length = graphics.length; i < length; i++) {
+        	graphics[i].dispose();
+        }
+        
+        return images;
     }
 
     private SpriteMapper forEachSprite(ObjectHandler<Sprite> handler) {

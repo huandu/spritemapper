@@ -22,7 +22,6 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import java.util.List;
 import java.util.LinkedList;
-import java.util.Arrays;
 
 public class SpriteImporter {
     private ObjectHandler<File> fileHandler;

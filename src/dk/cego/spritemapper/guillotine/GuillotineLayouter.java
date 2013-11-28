@@ -29,17 +29,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class GuillotineLayouter extends SpriteLayouter {
-    private int maxHeight;
+	private final static int MAX_HEIGHT = 1024 * 1024 * 1024;
+	
     private FreeSpaceChooser freeSpaceChooser = null;
     private FreeSpaceSplitStrategy freeSpaceSplitter = null;
-
-    public GuillotineLayouter() {
-        this(100000);
-    }
-
-    public GuillotineLayouter(int maxHeight) {
-        this.maxHeight = maxHeight;
-    }
 
     private String nullOrClass(Object o) {
         return o == null ? "null" : o.getClass().getSimpleName();
@@ -47,11 +40,6 @@ public class GuillotineLayouter extends SpriteLayouter {
 
     public String toString() {
         return "Guillotine(" + nullOrClass(freeSpaceChooser) + "," + nullOrClass(freeSpaceSplitter) + ")";
-    }
-
-    public GuillotineLayouter setMaxHeight(int maxHeight) {
-        this.maxHeight = maxHeight;
-        return this;
     }
 
     public GuillotineLayouter setFreeSpaceChooser(FreeSpaceChooser chooser) {
@@ -64,58 +52,91 @@ public class GuillotineLayouter extends SpriteLayouter {
         return this;
     }
 
-    public void layout(int maxWidth, List<Sprite> sprites) {
+    public int layout(int maxWidth, int maxHeight, List<Sprite> sprites) {
+    	if (sprites.isEmpty()) {
+    		return 0;
+    	}
+    	
+        if (maxHeight == 0) {
+            maxHeight = MAX_HEIGHT;
+        }
+        
         int spacing = getSpacing();
         List<Rectangle> freeSpaces = new ArrayList<Rectangle>();
         freeSpaces.add(new Rectangle(0, 0, maxWidth, maxHeight));
         FreeSpaceComparator comparator = new FreeSpaceComparator(freeSpaceChooser);
 
         Rectangle newFree[] = new Rectangle[2];
+        List<Sprite> current = new ArrayList<Sprite>(sprites);
+        List<Sprite> remaining = new ArrayList<Sprite>(sprites.size());
+        int layoutedCount;
+        int mapNumber;
 
-        for (Sprite s : sprites) {
-            //Find all spaces that the current sprite fits into
-            List<Rectangle> fits = SpriteCollections.filter(freeSpaces, new SpriteFitFilter(s));
-            if (fits.size() == 0) {
-                throw new RuntimeException("No free space found.");
-            }
+        for (mapNumber = 0; !current.isEmpty(); mapNumber++) {
+        	layoutedCount = 0;
+        	remaining.clear();
+        	freeSpaces.clear();
+        	freeSpaces.add(new Rectangle(0, 0, maxWidth, maxHeight));
+        	
+        	for (Sprite s : current) {
+        		//Find all spaces that the current sprite fits into
+                List<Rectangle> fits = SpriteCollections.filter(freeSpaces, new SpriteFitFilter(s));
+                if (fits.size() == 0) {
+                    remaining.add(s);
+                    continue;
+                }
 
-            //Order the list so that the preferred space is in the first location
-            comparator.setCurrentSprite(s);
-            Collections.sort(fits, comparator);
+                //Order the list so that the preferred space is in the first location
+                comparator.setCurrentSprite(s);
+                Collections.sort(fits, comparator);
 
-            //Remove it from our lists
-            Rectangle chosenSpace = fits.get(0);
-            freeSpaces.remove(chosenSpace);
+                //Remove it from our lists
+                Rectangle chosenSpace = fits.get(0);
+                freeSpaces.remove(chosenSpace);
 
-            //If the sprite does not fit the chosen space with its current rotation...
-            if (s.fits(chosenSpace) == false) {
-                //...then tilt it
-                s.rotate();
-            }
+                //If the sprite does not fit the chosen space with its current rotation...
+                if (s.fits(chosenSpace) == false) {
+                    //...then tilt it
+                    s.rotate();
+                }
 
-            //Place the sprite into the chosen free space
-            s.x = chosenSpace.x;
-            s.y = chosenSpace.y;
+                //Place the sprite into the chosen free space
+                s.x = chosenSpace.x;
+                s.y = chosenSpace.y;
+                s.mapNumber = mapNumber;
+                layoutedCount++;
 
-            //Choose how to split the free space
-            newFree[0] = null;
-            newFree[1] = null;
-            FreeSpaceSplitStrategy.Split split = freeSpaceSplitter == null ? 
-                    FreeSpaceSplitStrategy.Split.HORIZONTALLY : 
-                    freeSpaceSplitter.chooseSplit(chosenSpace, s, spacing);
-            if (split == FreeSpaceSplitStrategy.Split.HORIZONTALLY) {
-                splitHorizontally(newFree, chosenSpace, s, spacing);
-            } else {
-                splitVertically(newFree, chosenSpace, s, spacing);
-            }
+                //Choose how to split the free space
+                newFree[0] = null;
+                newFree[1] = null;
+                FreeSpaceSplitStrategy.Split split = freeSpaceSplitter == null ? 
+                        FreeSpaceSplitStrategy.Split.HORIZONTALLY : 
+                        freeSpaceSplitter.chooseSplit(chosenSpace, s, spacing);
+                if (split == FreeSpaceSplitStrategy.Split.HORIZONTALLY) {
+                    splitHorizontally(newFree, chosenSpace, s, spacing);
+                } else {
+                    splitVertically(newFree, chosenSpace, s, spacing);
+                }
 
-            //Add the ones that have an area larger than 0
-            for (Rectangle r : newFree) {
-                if (r.area() > 0) {
-                    freeSpaces.add(r);
+                //Add the ones that have an area larger than 0
+                for (Rectangle r : newFree) {
+                    if (r.area() > 0) {
+                        freeSpaces.add(r);
+                    }
                 }
             }
+        	
+        	if (layoutedCount == 0) {
+        		throw new RuntimeException("No free space found.");
+        	}
+        	
+        	// swap remaining and current list.
+        	List<Sprite> temp = remaining;
+        	remaining = current;
+        	current = temp;
         }
+       
+        return mapNumber;
     }
 
     public static void splitVertically(Rectangle rects[], Rectangle r, Sprite s, int spacing) {

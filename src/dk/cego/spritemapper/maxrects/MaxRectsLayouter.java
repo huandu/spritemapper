@@ -30,16 +30,8 @@ import dk.cego.spritemapper.Rectangle;
 import dk.cego.spritemapper.SpriteLayouter;
 
 public class MaxRectsLayouter extends SpriteLayouter {
-    private int maxHeight;
+    private final static int MAX_HEIGHT = 1024 * 1024 * 1024;
     private FreeSpaceChooser freeSpaceChooser = null;
-
-    public MaxRectsLayouter() {
-        this(100000);
-    }
-
-    public MaxRectsLayouter(int maxHeight) {
-        this.maxHeight = maxHeight;
-    }
 
     private static String nullOrClass(Object o) {
         return o == null ? "null" : o.getClass().getSimpleName();
@@ -54,55 +46,88 @@ public class MaxRectsLayouter extends SpriteLayouter {
         return "MaxRects(" + nullOrClass(freeSpaceChooser) + ")";
     }
 
-    public void layout(int maxWidth, List<Sprite> sprites) {
+    public int layout(int maxWidth, int maxHeight, List<Sprite> sprites) {
+    	if (sprites.isEmpty()) {
+    		return 0;
+    	}
+    	
+        if (maxHeight == 0) {
+            maxHeight = MAX_HEIGHT;
+        }
+
         List<Rectangle> freeSpaces = new ArrayList<Rectangle>();
-        freeSpaces.add(new Rectangle(0, 0, maxWidth, maxHeight));
         FreeSpaceComparator comparator = new FreeSpaceComparator(freeSpaceChooser);
-        Rectangle newFree[] = new Rectangle[4];
 
-        int num = sprites.size();
-        for (Sprite s : sprites) {
-            List<Rectangle> fits = SpriteCollections.filter(freeSpaces, new SpriteFitFilter(s));
-            if (fits.size() == 0) {
-                throw new RuntimeException("No free space found.");
-            }
+        List<Sprite> current = new ArrayList<Sprite>(sprites);
+        List<Sprite> remaining = new ArrayList<Sprite>(sprites.size());
+        int layoutedCount;
+        int mapNumber;
 
-            //Order the list so that the preferred space is in the first location
-            comparator.setCurrentSprite(s);
-            Collections.sort(fits, comparator);
-            Rectangle chosenSpace = fits.get(0);
+        for (mapNumber = 0; !current.isEmpty(); mapNumber++) {
+        	layoutedCount = 0;
+        	remaining.clear();
+        	freeSpaces.clear();
+        	freeSpaces.add(new Rectangle(0, 0, maxWidth, maxHeight));
+        	
+        	for (Sprite s : current) {
+                List<Rectangle> fits = SpriteCollections.filter(freeSpaces, new SpriteFitFilter(s));
+                
+                // cannot find suitable space in current rectangle? add sprite to remaining for next round.
+                if (fits.size() == 0) {
+                	remaining.add(s);
+                    continue;
+                }
 
-            //If the sprite does not fit the chosen space with its current rotation...
-            if (s.fits(chosenSpace) == false) {
-                //...then tilt it
-                s.rotate();
-            }
+                //Order the list so that the preferred space is in the first location
+                comparator.setCurrentSprite(s);
+                Collections.sort(fits, comparator);
+                Rectangle chosenSpace = fits.get(0);
 
-            //Place the sprite into the chosen free space
-            s.x = chosenSpace.x;
-            s.y = chosenSpace.y;
+                //If the sprite does not fit the chosen space with its current rotation...
+                if (s.fits(chosenSpace) == false) {
+                    //...then tilt it
+                    s.rotate();
+                }
 
-            //Now find and remove all spaces that collide with the sprite
-            List<Rectangle> collidingRects = SpriteCollections.remove(freeSpaces, new RectangleCollisionFilter(s));
+                //Place the sprite into the chosen free space
+                s.x = chosenSpace.x;
+                s.y = chosenSpace.y;
+                s.mapNumber = mapNumber;
+                layoutedCount++;
 
-            //Slice up the colliding rectangles and add the slices to the free list
-            for (Rectangle r : collidingRects) {
-                List<Rectangle> sliced = slice(r, s);
-                SpriteCollections.append(freeSpaces, sliced);
-            }
+                //Now find and remove all spaces that collide with the sprite
+                List<Rectangle> collidingRects = SpriteCollections.remove(freeSpaces, new RectangleCollisionFilter(s));
 
-            //Now remove all spaces that are completely covered by another space
-            for (int i = freeSpaces.size() - 1; i >= 0; i--) {
-                Rectangle cur = freeSpaces.get(i);
-                for (int j = freeSpaces.size() - 1; j >= 0; j--) {
-                    Rectangle subject = freeSpaces.get(j);
-                    if (subject.inside(cur) && subject != cur) {
-                        freeSpaces.remove(subject);
-                        if (j < i) i--;
+                //Slice up the colliding rectangles and add the slices to the free list
+                for (Rectangle r : collidingRects) {
+                    List<Rectangle> sliced = slice(r, s);
+                    SpriteCollections.append(freeSpaces, sliced);
+                }
+
+                //Now remove all spaces that are completely covered by another space
+                for (int i = freeSpaces.size() - 1; i >= 0; i--) {
+                    Rectangle cur = freeSpaces.get(i);
+                    for (int j = freeSpaces.size() - 1; j >= 0; j--) {
+                        Rectangle subject = freeSpaces.get(j);
+                        if (subject.inside(cur) && subject != cur) {
+                            freeSpaces.remove(subject);
+                            if (j < i) i--;
+                        }
                     }
                 }
             }
+        	
+        	if (layoutedCount == 0) {
+        		throw new RuntimeException("No free space found.");
+        	}
+        	
+        	// swap remaining and current list.
+        	List<Sprite> temp = remaining;
+        	remaining = current;
+        	current = temp;
         }
+        
+        return mapNumber;
     }
 
     private List<Rectangle> slice(Rectangle r, Sprite s) {

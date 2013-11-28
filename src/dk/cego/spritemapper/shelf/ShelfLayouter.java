@@ -19,12 +19,26 @@ package dk.cego.spritemapper.shelf;
 
 import dk.cego.spritemapper.SpriteLayouter;
 import dk.cego.spritemapper.Sprite;
+
 import java.util.List;
 
 public class ShelfLayouter extends SpriteLayouter {
-    public void layout(int maxWidth, List<Sprite> sprites) {
+	private final static int MAX_HEIGHT = 1024 * 1024 * 1024;
+	
+    public int layout(int maxWidth, int maxHeight, List<Sprite> sprites) {
+    	if (sprites.isEmpty()) {
+    		return 0;
+    	}
+    	
+        if (maxHeight == 0) {
+            maxHeight = MAX_HEIGHT;
+        }
+        
         int x = 0, y = 0, nextY = 0;
         int spacing = getSpacing();
+        
+        int mapNumber = 0;
+        int layoutedCount = 0;
 
         for (Sprite s : sprites) {
             if (x + s.w > maxWidth) {
@@ -43,9 +57,26 @@ public class ShelfLayouter extends SpriteLayouter {
 
             s.x = x;
             s.y = y;
+            s.mapNumber = mapNumber;
+            layoutedCount++;
+            
             x = s.right() + spacing;
             nextY = Math.max(nextY, s.bottom() + spacing);
+            
+            if (nextY > maxHeight) {
+            	if (layoutedCount == 0) {
+            		throw new RuntimeException("No free space found.");
+            	}
+            	
+            	layoutedCount = 0;
+            	mapNumber++;
+            	x = 0;
+            	y = 0;
+            	nextY = 0;
+            }
         }
+        
+        return mapNumber;
     }
 
     public String toString() {

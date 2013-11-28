@@ -63,12 +63,12 @@ public class OptimalLayouter extends SpriteLayouter implements Iterable<SpriteLa
     /**
      * @throws NullPointerException if no layouters have been added to this instance.
      */
-    public void layout(int maxWidth, List<Sprite> sprites) {
+    public int layout(int maxWidth, int maxHeight, List<Sprite> sprites) {
         if (usePOTSize) {
             maxWidth = toLowerPOT(maxWidth);
         }
 
-        lastUsed = findOptimal(maxWidth, sprites);
+        return findOptimal(maxWidth, maxHeight, sprites);
     }
 
     public String toString() {
@@ -101,11 +101,11 @@ public class OptimalLayouter extends SpriteLayouter implements Iterable<SpriteLa
      * @return return the layouter which packs the listed sprites to the
      * smallest area or null if no layouters have been added yet.
      */
-    private SpriteLayouter findOptimal(int maxWidth, List<Sprite> sprites) {
+    private int findOptimal(int maxWidth, int maxHeight, List<Sprite> sprites) {
         SpriteLayouter optimal = null;
 
         if (layouters.isEmpty()) {
-            return optimal;
+            return 0;
         }
 
         int border = getBorder();
@@ -113,47 +113,51 @@ public class OptimalLayouter extends SpriteLayouter implements Iterable<SpriteLa
 
         // impossible to do layout.
         if (maxWidth <= 0) {
-            return optimal;
+            return 0;
         }
 
         // we only use one layouter by default.
         if (layouters.size() == 1) {
             try {
                 optimal = layouters.get(0);
-                optimal.setSpacing(getSpacing())
-                .layout(maxWidth, sprites);
+                lastUsed = optimal;
+                
+                return optimal.setSpacing(getSpacing())
+                .layout(maxWidth, maxHeight, sprites);
             } catch (RuntimeException re) {
                 // nothing
             }
-
-            return optimal;
+            
+            return 0;
         }
 
         List<Sprite> optimizedSprites = null;
         int minArea = 0;
         float minFactor = 0f;
+        int mapNumber = 0;
 
         for (SpriteLayouter l : layouters) {
             List<Sprite> copy = Sprite.copy(sprites);
 
             try {
-                l.setSpacing(getSpacing())
-                .layout(maxWidth, copy);
+                int currentMapNumber = l.setSpacing(getSpacing())
+                .layout(maxWidth, maxHeight, copy);
 
-                Dimension d = Sprite.dimension(copy);
+                Dimension[] dimensions = Sprite.dimensions(copy, currentMapNumber);
 
                 if (optimal == null) {
                     optimal = l;
                     optimizedSprites = copy;
-                    minArea = area(d);
-                    minFactor = factor(d);
+                    minArea = area(dimensions);
+                    minFactor = factor(dimensions, maxWidth, maxHeight);
+                    mapNumber = currentMapNumber;
 
                     continue;
                 }
 
                 // smallest area and min width/height factor layouter wins.
-                int curArea = area(d);
-                float curFactor = factor(d);
+                int curArea = area(dimensions);
+                float curFactor = factor(dimensions, maxWidth, maxHeight);
 
                 if (curArea < minArea || (curArea == minArea && curFactor < minFactor)) {
                     optimal = l;
@@ -161,31 +165,80 @@ public class OptimalLayouter extends SpriteLayouter implements Iterable<SpriteLa
                     minFactor = curFactor;
                 }
             } catch (RuntimeException re) {
+            	System.err.println(re);
             }
         }
 
         sprites.clear();
         sprites.addAll(optimizedSprites);
 
-        return optimal;
+        lastUsed = optimal;
+        return mapNumber;
     }
 
-    private int area(Dimension d) {
+    /**
+     * Calculate total area of dimensions.
+     * @param dimensions
+     * @return
+     */
+    private int area(Dimension[] dimensions) {
         int border = getBorder();
-
-        if (usePOTSize) {
-            return toUpperPOT(d.width + 2 * border) * toUpperPOT(d.height + 2 * border);
+        int areaValue = 0;
+        
+        for (Dimension d : dimensions) {
+        	if (usePOTSize) {
+                areaValue += toUpperPOT(d.width + 2 * border) * toUpperPOT(d.height + 2 * border);
+            } else {
+                areaValue += (d.width + 2 * border) * (d.height + 2 * border);
+            }
         }
 
-        return (d.width + 2 * border) * (d.height + 2 * border);
+        return areaValue;
     }
 
-    private float factor(Dimension d) {
+    /**
+     * Calculate optimization factor. The smaller the better.
+     * @param dimensions
+     * @param maxWidth
+     * @param maxHeight
+     * @return
+     */
+    private float factor(Dimension[] dimensions, int maxWidth, int maxHeight) {
+    	int length = dimensions.length;
+    	float factorValue = 0.0f;
+    	Dimension d = null;
+    	
+    	if (length == 0) {
+    		return 0.0f;
+    	}
+    	
+    	// best algorithm can fill all possible spaces in dimensions.
+    	// NOTE: last dimension is not considered in factor.
+    	for (int i = 0; i < length - 1; i++) {
+    		d = dimensions[i];
+    		factorValue += 1.0f * (maxWidth - d.width) / maxWidth;
+    		
+    		if (maxHeight > 0) {
+    			factorValue += 1.0f * (maxHeight - d.height) / maxHeight;
+    		}
+    		
+    		// add penalty value for dimensions others than last one.
+    		factorValue += 1.0f;
+    	}
+    	
+    	// the less dimensions the better.
+    	factorValue *= length;
+    	
+    	// last dimension should be as square as possible.
+    	d = dimensions[length - 1];
+    	
         if (d.width > d.height) {
-            return 1f * d.width / d.height;
+            factorValue += 1f * d.width / d.height;
         } else {
-            return 1f * d.height / d.width;
+            factorValue += 1f * d.height / d.width;
         }
+        
+        return factorValue;
     }
 }
 

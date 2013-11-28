@@ -17,10 +17,11 @@
  */
 package dk.cego.spritemapper;
 
+import java.awt.Dimension;
 import java.io.OutputStream;
 import java.io.IOException;
 import java.util.List;
 
 public interface SpriteMapperMetaStream {
-    public void write(List<Sprite> sprites, OutputStream out) throws IOException;
+    public void write(String filename, List<Sprite> sprites, int mapNumber, Dimension d, OutputStream out) throws IOException;
 }

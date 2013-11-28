@@ -17,36 +17,28 @@
  */
 package dk.cego.spritemapper.cli;
 
-import java.io.File;
-import java.io.FileOutputStream;
+import java.awt.Dimension;
 import dk.cego.spritemapper.SpriteMapper;
 import dk.cego.spritemapper.SpriteMapperMetaStream;
 import dk.cego.spritemapper.Zwoptex2MetaStream;
+import dk.cego.spritemapper.util.OutputFilename;
 
 public class FormatOutput {
-    private String format;
-    private File out;
+    private SpriteMapperMetaStream stream = null;
+    private OutputFilename output = null;
 
-    public FormatOutput(String format, File out) {
-        this.format = format;
-        this.out = out;
+    public FormatOutput(String format, String filename) throws RuntimeException {
+    	if (format.equals("zwoptex2")) {
+    		stream = new Zwoptex2MetaStream();
+    		output = OutputFilename.parseString(filename);
+    		return;
+    	}
+    	
+    	throw new RuntimeException("Unknown format '" + format + "'");
     }
 
-    public void writeMetaData(SpriteMapper mapper) throws Exception {
-        mapper.setMetaStreamer(getStreamer(mapper)).doMetaStream(new FileOutputStream(out));
-    }
-
-    private SpriteMapperMetaStream getStreamer(SpriteMapper mapper) throws Exception {
-        if (format.equals("zwoptex2")) {
-
-            return new Zwoptex2MetaStream(out.getName(), mapper.getLayoutDimension());
-        }
-
-        throw new Exception("Unknown format '" + format + "'");
-    }
-
-    public String toString() {
-        return format + "(" + out + ")";
+    public void writeMetaData(SpriteMapper mapper, Dimension[] dimensions) throws Exception {
+        mapper.doMetaStream(stream, dimensions, output);
     }
 }
 

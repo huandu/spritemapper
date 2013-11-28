@@ -23,7 +23,6 @@ import dk.cego.spritemapper.util.BestShortSideChooser;
 import dk.cego.spritemapper.util.BestLongSideChooser;
 import dk.cego.spritemapper.util.TopLeftChooser;
 import dk.cego.spritemapper.OptimalLayouter;
-import dk.cego.spritemapper.Sprite;
 
 public class OptimalMaxRectsLayouter extends OptimalLayouter {
     public OptimalMaxRectsLayouter() {
