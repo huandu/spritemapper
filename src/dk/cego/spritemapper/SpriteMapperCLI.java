@@ -81,12 +81,9 @@ public class SpriteMapperCLI {
                 String option = entry.getKey();
                 List<String> arg = entry.getValue();
                 
-                switch (option) {
-                case "":
+                if (option.equals("")) {
                 	images.addAll(arg);
-                	break;
-                
-                case "config":
+                } else if (option.equals("config")) {
                 	config = argument(arg);
                 	
                 	File configFile = new File(config);
@@ -94,50 +91,32 @@ public class SpriteMapperCLI {
                 	if (!configFile.canRead()) {
                 		throw new ArgumentException("Config file is not readable. Config: " + configFile.getPath());
                 	}
-                	
-                	break;
-                	
-                case "include":
+                } else if (option.equals("include")) {
                 	singleConfig.filters.add(new FileIncludeFilter(argument(arg)));
-                	break;
-                
-                case "exclude":
+                } else if (option.equals("exclude")) {
                 	singleConfig.filters.add(new FileExcludeFilter(argument(arg)));
-                	break;
-                
-                case "zwoptex2":
+                } else if (option.equals("zwoptex2")) {
                 	MetaConfig metaConfig = new MetaConfig();
                 	metaConfig.type = "zwoptex2";
                 	metaConfig.path = argument(arg);
                 	metaConfigList.add(metaConfig);
-                	break;
-                	
-                case "keep-dir":
+                } else if (option.equals("keep-dir")) {
                 	keepDir = Boolean.parseBoolean(argument(arg, "true"));
-                	break;
-                	
-                case "output":
+                } else if (option.equals("output")) {
                 	TextureConfig textureConfig = new TextureConfig();
                 	textureConfig.path = argument(arg);
                 	textureConfig.type = fileExtension(textureConfig.path);
                 	
                     textureConfigList.add(textureConfig);
-                    break;
-                    
-                case "version":
+                } else if (validArguments.contains(option)) {
+                    singleConfig.options.put(option, argument(arg));
+                } else if (option.equals("version")) {
                 	version();
                 	return;
-                	
-                case "help":
+                } else if (option.equals("help")) {
                 	help();
                     return;
-                    
-                default:
-                	if (validArguments.contains(option)) {
-                    	singleConfig.options.put(option, argument(arg));
-                    	break;
-                    }
-                	
+                } else {
                 	throw new ArgumentException("Unknown option \"" + originalArgument(entry) + "\".");
                 }
             }
