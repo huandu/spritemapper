@@ -1,9 +1,9 @@
-Sprite Mapper
-=============
+Sprite Mapper 2
+===============
 
 SpriteMapper can pack several image files and/or directories into one png file with minimum size. It can write Zwoptex compatible metadata file for sprite map.
 
-It's forked from http://opensource.cego.dk/spritemapper/. Original author is Robert Larsen. This fork is maintained by Huan Du.
+It's forked from [SpriteMapper](http://opensource.cego.dk/spritemapper/), which is developed by Robert Larsen. This fork is maintained by Huan Du.
 
 Quick Guide
 -----------
@@ -106,7 +106,7 @@ Sprite Mapper will draw images in memory. It may consume hundreds MiB memory at 
 
 **Integrate with `ant`**
 
-This is the most well maintained way to run the mapper as this is what I do myself. Get Ant from here.
+This is the most well maintained way to run the mapper as this is what I do myself. Get Ant from [here](http://ant.apache.org/).
 
 *Note*: Only a part of features are supported in `ant` task. Related code will be updated to support full command line features later.
 

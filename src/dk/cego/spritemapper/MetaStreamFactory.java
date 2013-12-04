@@ -1,6 +1,5 @@
 /**
- * Copyright (C) 2011 CEGO ApS
- * Written by Robert Larsen <robert@komogvind.dk> for CEGO ApS
+ * Copyright (C) 2013 Huan Du <i@huandu.me>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,23 +14,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.cego.spritemapper.cli;
+package dk.cego.spritemapper;
 
-import java.io.File;
-
-public class FileTypeFileMatcher implements FileMatcher {
-    public enum FileType {
-        DIRECTORY,
-            FILE
-    };
-
-    private FileType type;
-
-    public FileTypeFileMatcher(FileType type) {
-        this.type = type;
-    }
-
-    public boolean matches(File f) {
-        return this.type == FileType.DIRECTORY ? f.isDirectory() : f.isFile();
-    }
+public class MetaStreamFactory {
+	public final static SpriteMapperMetaStream newInstance(String type) {
+		if (type.equals("zwoptex2")) {
+    		return new Zwoptex2MetaStream();
+    	}
+    	
+    	throw new RuntimeException("Unknown meta data format. Format: " + type);
+	}
 }

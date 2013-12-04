@@ -1,7 +1,7 @@
-Todo
+TODO
 ----
 
-* Exporters for Zwoptex (both formats) and TexturePacker
-* Remove identical (after trimming)
-* GUI
-* Generally better architecture
+* Refactory ant task related code.
+* Add more metadata type.
+* Remove identical (after trimming).
+* Generally better architecture.

@@ -1,6 +1,5 @@
 /**
- * Copyright (C) 2011 CEGO ApS
- * Written by Robert Larsen <robert@komogvind.dk> for CEGO ApS
+ * Copyright (C) 2013 Huan Du <i@huandu.me>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,30 +14,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.cego.spritemapper.cli;
+package dk.cego.spritemapper.config;
 
-import java.io.File;
-import java.util.List;
 import java.util.LinkedList;
+import java.util.List;
 
-public class CompositeFileMatcher implements FileMatcher {
-    private List<FileMatcher> matchers;
-
-    public CompositeFileMatcher() {
-        this.matchers = new LinkedList<FileMatcher>();
-    }
-
-    public CompositeFileMatcher add(FileMatcher matcher) {
-        matchers.add(matcher);
-        return this;
-    }
-
-    public boolean matches(File f) {
-        for (FileMatcher m : matchers) {
-            if (m.matches(f) == false) {
-                return false;
-            }
-        }
-        return true;
-    }
+public class OutputConfig {
+	public List<TextureConfig> textureConfigList = new LinkedList<TextureConfig>();
+	public List<MetaConfig> metaConfigList = new LinkedList<MetaConfig>();
 }

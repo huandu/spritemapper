@@ -17,23 +17,18 @@
  */
 package dk.cego.spritemapper;
 
-import java.awt.image.BufferedImage;
-import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.TreeMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.imageio.ImageIO;
-import dk.cego.spritemapper.cli.*;
-import dk.cego.spritemapper.spritehandlers.*;
-import dk.cego.spritemapper.spritecomparators.*;
-import dk.cego.spritemapper.util.OutputFilename;
+import dk.cego.spritemapper.config.*;
 
 class ArgumentException extends Exception {
     // it's a fake version uid. however, javac requires it. 
@@ -45,14 +40,9 @@ class ArgumentException extends Exception {
 }
 
 public class SpriteMapperCLI {
-    private final static String DEFAULT_FILE_MATCHER = "\\.((png)|(jpe?g)|(gif))$";
-    private final static String OPTION_ARGUMENT_PATTERN = "^--([^=]+)(=(.*))?$";
-    private final static int DEFAULT_IMAGE_WIDTH = 1024;
-    private final static int DEFAULT_IMAGE_HEIGHT = 0;
-    private final static String DEFAULT_BASE_DIR = ".";
-    private final static String DEFAULT_ZWOPTEX2_PLIST_NAME = "zwoptex2.plist";
-    private final static String DEFAULT_OUTPUT_NAME = "spritemap.png";
-    private final static String DEFAULT_ALGORITHM = "maxrects";
+	private final static String VERSION = "2.0.1";
+	private final static String OPTION_ARGUMENT_PATTERN = "^--([^=]+)(=(.*))?$";
+	private final static String DEFAULT_FILE_INCLUDE_FILTER = "*.{jpg,jpeg,png,gif}";
 
     public static void main(String args[]) throws IOException {
         if (args.length == 0) {
@@ -60,250 +50,214 @@ public class SpriteMapperCLI {
             System.exit(1);
             return;
         }
-
-        List<FormatOutput> metaOut = new LinkedList<FormatOutput>();
-        String out =DEFAULT_OUTPUT_NAME;
-        File baseDir = new File(DEFAULT_BASE_DIR);
-        List<File> images = new LinkedList<File>();
-        OptimalAlgorithmLayouter layouter = new OptimalAlgorithmLayouter();
-
-        int maxWidth = DEFAULT_IMAGE_WIDTH;
-        int maxHeight = DEFAULT_IMAGE_HEIGHT;
-        boolean usePOTSize = false;
-        boolean drawFrames = false;
-        boolean trim = true;
-        int spacing = 0;
-        int border = 0;
-        boolean reserveDirName = false;
-        RegexFileMatcher fileMatcherRegex = new RegexFileMatcher(DEFAULT_FILE_MATCHER);
-        String algorithm = DEFAULT_ALGORITHM;
-
-        Map<String, List<String>> arguments = parseArguments(args);
-        Map.Entry<String, List<String>> currentEntry = null;
+        
+        // argument default values.
+        String config = "";
+        boolean keepDir = false;
+        List<String> images = new LinkedList<String>();
+        
+        // this config is only valid when --config is not set.
+        Config singleConfig = new Config();
+        List<TextureConfig> textureConfigList = new LinkedList<TextureConfig>();
+        List<MetaConfig> metaConfigList = new LinkedList<MetaConfig>();
+        
+        // white-list for all supported but not checked arguments.
+        Set<String> validArguments = new HashSet<String>();
+        validArguments.add("base-dir");
+        validArguments.add("algorithm");
+        validArguments.add("max-width");
+        validArguments.add("max-height");
+        validArguments.add("use-pot-size");
+        validArguments.add("draw-frames");
+        validArguments.add("trim");
+        validArguments.add("spacing");
+        validArguments.add("border");
 
         try {
+            Map<String, List<String>> arguments = parseArguments(args);
+            
+        	// verify and store all arguments.
             for (Map.Entry<String, List<String>> entry: arguments.entrySet()) {
                 String option = entry.getKey();
                 List<String> arg = entry.getValue();
-                currentEntry = entry;
-
-                if (option.equals("")) {
-                    for (String f: arg) {
-                        File fileOrDir = new File(baseDir, f);
-
-                        if (!fileOrDir.exists()) {
-                            throw new ArgumentException("File or directory \"" + f + "\" doesn't exist in base dir \"" + baseDir.toString() + "\".");
-                        }
-
-                        images.add(fileOrDir);
-                    }
-
-                // input options.
-                } else if (option.equals("base-dir")) {
-                    baseDir = new File(argument(arg, DEFAULT_BASE_DIR));
-
-                    if (!baseDir.exists()) {
-                        throw new ArgumentException("Base dir \"" + arg + "\" doesn't exist.");
-                    }
-                } else if (option.equals("file-pattern")) {
-                    fileMatcherRegex = new RegexFileMatcher(argument(arg, DEFAULT_FILE_MATCHER));
-                } else if (option.equals("zwoptex2")) {
-                    metaOut.add(new FormatOutput("zwoptex2", argument(arg, DEFAULT_ZWOPTEX2_PLIST_NAME)));
-                } else if (option.equals("reserve-dir-name")) {
-                    reserveDirName = Boolean.parseBoolean(argument(arg, "true"));
-
-                // metadata options.
-                } else if (option.equals("out")) {
-                    out = argument(arg, DEFAULT_OUTPUT_NAME);
-                } else if (option.equals("algorithm")) {
-                    algorithm = argument(arg);
-                } else if (option.equals("max-width")) {
-                    maxWidth = Integer.parseInt(argument(arg));
-
-                    if (maxWidth < 0) {
-                        maxWidth = 0;
-                    }
-                } else if (option.equals("max-height")) {
-                    maxHeight = Integer.parseInt(argument(arg));
-
-                    if (maxHeight < 0) {
-                        maxHeight = 0;
-                    }
-                } else if (option.equals("pot-size")) {
-                    usePOTSize = Boolean.parseBoolean(argument(arg, "true"));
-                } else if (option.equals("draw-frames")) {
-                    drawFrames = Boolean.parseBoolean(argument(arg, "true"));
-                } else if (option.equals("trim")) {
-                    trim = Boolean.parseBoolean(argument(arg, "true"));
-                } else if (option.equals("spacing")) {
-                    spacing = Integer.parseInt(argument(arg));
-
-                    if (spacing < 0) {
-                        spacing = 0;
-                    }
-                } else if (option.equals("border")) {
-                    border = Integer.parseInt(argument(arg));
-
-                    if (border < 0) {
-                        border = 0;
-                    }
-
-                // others.
-                } else if (option.equals("help")) {
-                    help();
+                
+                switch (option) {
+                case "":
+                	images.addAll(arg);
+                	break;
+                
+                case "config":
+                	config = argument(arg);
+                	
+                	File configFile = new File(config);
+                	
+                	if (!configFile.canRead()) {
+                		throw new ArgumentException("Config file is not readable. Config: " + configFile.getPath());
+                	}
+                	
+                	break;
+                	
+                case "include":
+                	singleConfig.filters.add(new FileIncludeFilter(argument(arg)));
+                	break;
+                
+                case "exclude":
+                	singleConfig.filters.add(new FileExcludeFilter(argument(arg)));
+                	break;
+                
+                case "zwoptex2":
+                	MetaConfig metaConfig = new MetaConfig();
+                	metaConfig.type = "zwoptex2";
+                	metaConfig.path = argument(arg);
+                	metaConfigList.add(metaConfig);
+                	break;
+                	
+                case "keep-dir":
+                	keepDir = Boolean.parseBoolean(argument(arg, "true"));
+                	break;
+                	
+                case "output":
+                	TextureConfig textureConfig = new TextureConfig();
+                	textureConfig.path = argument(arg);
+                	textureConfig.type = fileExtension(textureConfig.path);
+                	
+                    textureConfigList.add(textureConfig);
+                    break;
+                    
+                case "version":
+                	version();
+                	return;
+                	
+                case "help":
+                	help();
                     return;
-                } else {
-                    throw new ArgumentException("Unknown option \"" + originalArgument(entry) + "\".");
+                    
+                default:
+                	if (validArguments.contains(option)) {
+                    	singleConfig.options.put(option, argument(arg));
+                    	break;
+                    }
+                	
+                	throw new ArgumentException("Unknown option \"" + originalArgument(entry) + "\".");
                 }
             }
+            
+            List<Config> configs;
 
-            if (images.isEmpty()) {
-                throw new ArgumentException("Must set at least one input image file or directory.");
-            }
-
-            if (metaOut.isEmpty()) {
-                throw new ArgumentException("Must set at least one metadata format.");
-            }
-
-            String[] algorithms = algorithm.split(",");
-
-            for (String a: algorithms) {
-                if (!layouter.add(a.trim())) {
-                    throw new ArgumentException("Unknown packing algorithm '" + a.trim() + "'.");
+            if (config.isEmpty()) {
+                // if there is no file filter, set a default one.
+                if (singleConfig.filters.isEmpty()) {
+                	singleConfig.filters.add(new FileIncludeFilter(DEFAULT_FILE_INCLUDE_FILTER));
                 }
+                
+                // add all images as input.
+                for (String img : images) {
+                	InputConfig inputConfig = new InputConfig();
+                	inputConfig.path = img;
+                	singleConfig.inputConfigList.add(inputConfig);
+                }
+                
+                // if there is any meta file setting, update keep dir setting.
+                for (MetaConfig meta : metaConfigList) {
+                	meta.keepDir = keepDir;
+                }
+                
+                // associated meta config to all output configs.
+                OutputConfig outputConfig = new OutputConfig();
+                outputConfig.textureConfigList = textureConfigList;
+                outputConfig.metaConfigList = metaConfigList;
+                singleConfig.outputConfigList.add(outputConfig);
+                
+                // create a list of configs.
+                configs = new LinkedList<Config>();
+                configs.add(singleConfig);
+            } else {
+            	// if config is set, ignore all images, input, output, meta and filters.
+            	configs = Parser.parse(config, singleConfig.options);
+            }
+            
+            // create runners and run.
+            List<SpriteMapperRunner> runners = new ArrayList<SpriteMapperRunner>(configs.size());
+            
+            // create runners. config will be validated in this step.
+            for (Config c : configs) {
+            	runners.add(new SpriteMapperRunner(c));
+            }
+            
+            // run sprite mapper with config.
+            for (SpriteMapperRunner r : runners) {
+            	r.run();
             }
         } catch (RuntimeException e) {
-            System.err.println("Error: In option \"" + originalArgument(currentEntry) + "\"");
             System.err.println(e);
-            System.out.println("");
+            e.printStackTrace(System.err);
+            System.err.println();
+            
             help();
             System.exit(1);
             return;
         } catch (ArgumentException e) {
-            System.out.println(e);
-            System.out.println("");
+            System.err.println(e);
+            e.printStackTrace(System.err);
+            System.err.println();
+            
             help();
             System.exit(1);
             return;
         }
-
-        FileMatcher fileMatcher = new CompositeFileMatcher()
-        .add(new FileTypeFileMatcher(FileTypeFileMatcher.FileType.FILE))
-        .add(fileMatcherRegex);
-
-        Scanner scanner = new Scanner(baseDir);
-        Set<File> files = new TreeSet<File>();
-
-        for (File directory: images) {
-            if (directory.isDirectory()) {
-                scanner.scan(files, directory, fileMatcher);
-            } else {
-                files.add(directory);
-            }
-        }
-
-        List<Sprite> sprites = new SpriteImporter().importSprites(baseDir, files, reserveDirName);
-        layouter.setUsePOTSize(usePOTSize)
-        .setBorder(border)
-        .setSpacing(spacing);
-
-        SpriteMapper mapper = new SpriteMapper(sprites)
-        .setTrim(trim)
-        .setSpritePreHandler(new Landscape())
-        .setSpriteSorter(new AreaComparator())
-        .setLayouter(layouter)
-        .doLayout(maxWidth, maxHeight);
-
-        // draw output image and write meta data.
-        writeOutput(out, mapper, metaOut, border, usePOTSize, drawFrames);
-    }
-
-    private final static void writeOutput(String out, SpriteMapper mapper, List<FormatOutput> metaOut, int border, boolean usePOTSize, boolean drawFrames) {
-    	String format = fileExtension(out);
-    	Dimension[] dimensions = mapper.getLayoutDimension();
-
-    	// consider border and POT size options.
-    	for (Dimension d : dimensions) {
-    		d.width += 2 * border;
-            d.height += 2 * border;
-
-            if (usePOTSize) {
-                d.width = OptimalAlgorithmLayouter.toUpperPOT(d.width);
-                d.height = OptimalAlgorithmLayouter.toUpperPOT(d.height);
-            }
-    	}
-        
-    	// draw images.
-        List<BufferedImage> images = mapper.getImages(dimensions, getImageType(format), drawFrames);
-    	OutputFilename outFilename = OutputFilename.parseString(out);
-    	outFilename.setMaxNumber(dimensions.length);
-        
-    	// save images to files.
-        for (BufferedImage img : images) {
-        	File outFile = new File(outFilename.filename());
-        	
-            try {
-    			ImageIO.write(img, format, outFile);
-    		} catch (IOException e) {
-    			System.err.println(e);
-    			continue;
-    		}
-        }
-    	
-        // write meta files.
-    	for (FormatOutput output : metaOut) {
-            try {
-                output.writeMetaData(mapper, dimensions);
-            } catch (Exception e) {
-                System.err.println(e);
-            }
-        }
-    }
-    
-    private final static int getImageType(String format) {
-    	if (format.equalsIgnoreCase("jpg") || format.equalsIgnoreCase("jpeg")) {
-    		return BufferedImage.TYPE_INT_RGB;
-    	}
-    	
-    	return BufferedImage.TYPE_INT_ARGB;
     }
 
     private final static void help() {
         System.out.println("SpriteMapper can pack several image files and/or directories into one png file with minimum size.");
-        System.out.println("");
-        System.out.println("Usage: java -jar SpriteMapper.jar [options...] <image files or dirs...>");
-        System.out.println("");
-        System.out.println("Input options:");
-        System.out.println("    --base-dir=.               - Base dir of image files and directories.");
-        System.out.println("    --file-pattern=" + DEFAULT_FILE_MATCHER);
-        System.out.println("                               - Only include files matching this pattern.");
-        System.out.println("");
+        System.out.println();
+        System.out.println("Usage: java -jar SpriteMapper.jar [--options...] <image files or dirs...>");
+        System.out.println();
+        System.out.println("Config file:");
+        System.out.println("  --config=CONFIG_FILE_NAME  - Use config file to pack many different sprites to differnt sprite maps.");
+        System.out.println("                               Once config file is set, image files and dirs in argument is ignored.");
+        System.out.println("                               See online help document for config file structure.");
+        System.out.println("                               https://github.com/huandu/spritemapper/blob/master/README.md#config-file");
+        System.out.println();
+        System.out.println("Filter options:");
+        System.out.println("  --include=" + DEFAULT_FILE_INCLUDE_FILTER);
+        System.out.println("                             - Only include files matching this pattern. Can set more than 1 filter.");
+        System.out.println("  --exclude=PATTER           - Exclude files matching this pattern. Can set more than 1 filter.");
+        System.out.println();
         System.out.println("Metadata options:");
-        System.out.println("    --zwoptex2=zwoptex2.plist  - Output metadata in Zwoptex2 general plist format.");
-        System.out.println("    --reserve-dir-name=false   - Reserve dir name for frame keys in metadata file.");
-        System.out.println("");
+        System.out.println("  --zwoptex2=meta{n}.plist   - Output metadata in Zwoptex2 general plist format.");
+        System.out.println("  --keep-dir=false           - Keep dir name for frame keys in metadata file.");
+        System.out.println();
         System.out.println("Output options:");
-        System.out.println("    --out=spritemap{n}.png     - Output sprite map to 'spritemap{n}.png'. '{n}' is output sequence number.");
-        System.out.println("                                 Sequence number stars with 0 by default. Use '{n1}' to make the number");
-        System.out.println("                                 start with 1 instead of 0.");
-        System.out.println("                                 If --max-height is 0 or files can be packed in one sprite map, sequence");
-        System.out.println("                                 number will become an empty string. Use '{n!}' to force generate a number.");
-        System.out.println("");
+        System.out.println("  --output=spritemap{n}.png  - Output sprite map to 'spritemap{n}.png'. '{n}' is output sequence number.");
+        System.out.println("                               Sequence number stars with 0 by default. Use '{n1}' to make the number");
+        System.out.println("                               start with 1 instead of 0.");
+        System.out.println("                               If --max-height is 0 or files can be packed in one sprite map, sequence");
+        System.out.println("                               number will become an empty string. Use '{n!}' to force generating number.");
+        System.out.println();
         System.out.println("Packing options:");
-        System.out.println("    --algorithm=maxrects       - Set packing algorithm. Can be 'maxrects', 'guillotine' and/or 'shelf'.");
-        System.out.println("                                 Multiple algorithms can be used together, e.g. 'maxrects,guillotine,shelf'.");
-        System.out.println("                                 The most optimal algorithm will be chosen for final output.");
-        System.out.println("    --max-width=1024           - Set maximum width. Default maximum width is 1024 pixels.");
-        System.out.println("    --max-height=0             - Set maximum height. Default maximum height is 0, which means no limit.");
-        System.out.println("                                 If image files cannot be packed into one sprite due to max height, ");
-        System.out.println("    --pot-size=false           - Use POT (Power Of Two) value for width and height of sprite map.");
-        System.out.println("    --draw-frames=false        - Draw frames around images in sprite map.");
-        System.out.println("    --trim=true                - Trim transparent edges.");
-        System.out.println("    --spacing=0                - Set sprite spacing.");
-        System.out.println("    --border=0                 - Set border padding.");
-        System.out.println("");
+        System.out.println("  --base-dir=.               - Base dir of image files and directories.");
+        System.out.println("  --algorithm=maxrects       - Set packing algorithm. Can be 'maxrects', 'guillotine' and/or 'shelf'.");
+        System.out.println("                               Multiple algorithms can be used together, e.g. 'maxrects,guillotine,shelf'.");
+        System.out.println("                               The most optimal algorithm will be chosen for final output.");
+        System.out.println("  --max-width=1024           - Set maximum width. Default maximum width is 1024 pixels.");
+        System.out.println("  --max-height=0             - Set maximum height. Default maximum height is 0, which means no limit.");
+        System.out.println("                               If image files cannot be packed into one sprite due to max height, ");
+        System.out.println("  --use-pot-size=false       - Use POT (Power Of Two) value for width and height of sprite map.");
+        System.out.println("  --draw-frames=false        - Draw frames around images in sprite map.");
+        System.out.println("  --trim=false               - Trim transparent edges.");
+        System.out.println("  --spacing=0                - Set sprite spacing.");
+        System.out.println("  --border=0                 - Set border padding.");
+        System.out.println();
         System.out.println("Others:");
-        System.out.println("    --help                     - Show this help message.");
+        System.out.println("  --version                  - Show SpriteMapper version number.");
+        System.out.println("  --help                     - Show this help message.");
+        System.out.println();
+        System.out.println("SpriteMapper is maintained by Huan Du <i@huandu.me>. Visit project page to get help or report bugs.");
+        System.out.println("Project Page: https://github.com/huandu/spritemapper");
+    }
+    
+    private final static void version() {
+    	System.out.println("SpriteMapper " + VERSION);
     }
 
     private final static String fileExtension(String name) {

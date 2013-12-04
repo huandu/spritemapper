@@ -32,32 +32,32 @@ public class OutputFilename {
 	private final static String PLACEHOLDER_PATTERN = "\\{([^\\}]+)\\}";
 	private final static String NUMBER_PLACEHOLDER_PATTERN = "^n(\\d*)(!)?";
 	
-	interface Fragment {
+	private interface Fragment {
 		public abstract void buildString(StringBuilder sb, int sequence, boolean yieldNumber);
 	}
 
-	class NumberFragment implements Fragment {
+	private class NumberFragment implements Fragment {
 		private String prefix;
 		private int base;
-		private boolean canYieldNumber;
+		private boolean dontYieldNumber;
 		
-		public NumberFragment(String prefix, int base, boolean canYieldNumber) {
+		public NumberFragment(String prefix, int base, boolean dontYieldNumber) {
 			this.prefix = prefix;
 			this.base = base;
-			this.canYieldNumber = canYieldNumber;
+			this.dontYieldNumber = dontYieldNumber;
 		}
 
 		@Override
 		public void buildString(StringBuilder sb, int sequence, boolean yieldNumber) {
 			sb.append(prefix);
 			
-			if (!canYieldNumber || !yieldNumber || sequence != 0) {
+			if (dontYieldNumber || !yieldNumber || sequence != 0) {
 				sb.append(sequence + base);
 			}
 		}
 	}
 	
-	class PlainFragment implements Fragment {
+	private class PlainFragment implements Fragment {
 		private String prefix;
 		
 		public PlainFragment(String prefix) {

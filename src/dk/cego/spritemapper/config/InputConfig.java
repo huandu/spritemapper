@@ -1,6 +1,5 @@
 /**
- * Copyright (C) 2011 CEGO ApS
- * Written by Robert Larsen <robert@komogvind.dk> for CEGO ApS
+ * Copyright (C) 2013 Huan Du <i@huandu.me>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,24 +14,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.cego.spritemapper.cli;
+package dk.cego.spritemapper.config;
 
-import java.io.File;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-
-public class RegexFileMatcher implements FileMatcher {
-    private Pattern pattern;
-
-    public RegexFileMatcher(String regex) throws PatternSyntaxException {
-        this(Pattern.compile(regex));
-    }
-
-    public RegexFileMatcher(Pattern p) {
-        this.pattern = p;
-    }
-
-    public boolean matches(File f) {
-        return pattern.matcher(f.getName()).find();
-    }
+public class InputConfig {
+	public String path = "";
 }

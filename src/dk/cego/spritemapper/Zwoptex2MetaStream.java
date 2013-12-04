@@ -47,11 +47,16 @@ public class Zwoptex2MetaStream implements SpriteMapperMetaStream {
                 d.width = s.h;
                 d.height = s.w;
             }
+            
+            float offsetX = s.colorRect.x - (s.originalDimension.width - s.colorRect.w) / 2.0f;
+            float offsetY = (s.originalDimension.height - s.colorRect.h) / 2.0f - s.colorRect.y;
 
             o.write("            <key>" + s.name.replace('\\', '/') + "</key>\n");
             o.write("            <dict>\n");
             o.write("                <key>frame</key>\n");
             o.write("                <string>{{" + s.x + "," + s.y + "},{" + d.width + "," + d.height + "}}</string>\n");
+            o.write("                <key>offset</key>\n");
+            o.write("                <string>{" + offsetX + "," + offsetY + "}</string>\n");
             o.write("                <key>rotated</key>\n");
             o.write("                <" + s.rotated + "/>\n");
             o.write("                <key>sourceColorRect</key>\n");

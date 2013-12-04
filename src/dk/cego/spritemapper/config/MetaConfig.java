@@ -1,6 +1,5 @@
 /**
- * Copyright (C) 2011 CEGO ApS
- * Written by Robert Larsen <robert@komogvind.dk> for CEGO ApS
+ * Copyright (C) 2013 Huan Du <i@huandu.me>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,10 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.cego.spritemapper.cli;
+package dk.cego.spritemapper.config;
 
-import java.io.File;
-
-public interface FileMatcher {
-    public boolean matches(File f);
+public class MetaConfig {
+	public String type = "";
+	public String path = "";
+	public boolean keepDir = false;
 }

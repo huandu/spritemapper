@@ -12,6 +12,8 @@
     <property name="file.jar" value="${dir.dist}/SpriteMapper.jar"/>
     <property name="compile.debuglevel" value="lines,vars,source" />
     <property name="compile.debugging" value="on" />
+    <property name="ant.build.javac.source" value="1.5"/>
+    <property name="ant.build.javac.target" value="1.5"/>
 
     <target name="init">
         <mkdir dir="${dir.dist}"/>

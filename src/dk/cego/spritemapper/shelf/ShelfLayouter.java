@@ -38,7 +38,6 @@ public class ShelfLayouter extends SpriteLayouter {
         int spacing = getSpacing();
         
         int mapNumber = 0;
-        int layoutedCount = 0;
 
         for (Sprite s : sprites) {
             if (x + s.w > maxWidth) {
@@ -58,24 +57,26 @@ public class ShelfLayouter extends SpriteLayouter {
             s.x = x;
             s.y = y;
             s.mapNumber = mapNumber;
-            layoutedCount++;
             
             x = s.right() + spacing;
             nextY = Math.max(nextY, s.bottom() + spacing);
             
             if (nextY > maxHeight) {
-            	if (layoutedCount == 0) {
-            		throw new RuntimeException("No free space found.");
+            	if ((s.w > maxWidth && s.w > maxHeight) || (s.h > maxWidth && s.h > maxHeight)) {
+            		throw new RuntimeException("No free space can be found.");
             	}
             	
-            	layoutedCount = 0;
             	mapNumber++;
-            	x = 0;
-            	y = 0;
-            	nextY = 0;
+            	s.x = 0;
+            	s.y = 0;
+            	s.mapNumber = mapNumber;
+            	
+            	x = s.right() + spacing;
+            	nextY = s.bottom();
             }
         }
         
+        mapNumber++;
         return mapNumber;
     }
 

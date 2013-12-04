@@ -47,7 +47,7 @@ public class SpriteImporter {
         return this;
     }
 
-    public List<Sprite> importSprites(File base, Iterable<File> files, Boolean reserveDirName) throws IOException {
+    public List<Sprite> importSprites(File base, Iterable<File> files) throws IOException {
         List<Sprite> result = new LinkedList<Sprite>();
         String baseDir = base.getCanonicalPath();
         String separator = "\\" + File.separator;
@@ -57,37 +57,33 @@ public class SpriteImporter {
             String filePath = f.getCanonicalPath();
             String path;
 
-            if (reserveDirName) {
-                // file path likely starts with base dir.
-                if (filePath.startsWith(baseDir)) {
-                    path = filePath.substring(baseDir.length() + 1);
-                } else {
-                    if (baseDirParts == null) {
-                        baseDirParts = baseDir.split(separator);
-                    }
+            // file path likely starts with base dir.
+            if (filePath.startsWith(baseDir)) {
+                path = filePath.substring(baseDir.length() + 1);
+            } else {
+                if (baseDirParts == null) {
+                    baseDirParts = baseDir.split(separator);
+                }
 
-                    String[] parts = filePath.split(separator);
-                    int start = 0;
+                String[] parts = filePath.split(separator);
+                int start = 0;
 
-                    for (; start < parts.length && start < baseDirParts.length; start++) {
-                        if (parts[start] != baseDirParts[start]) {
-                            break;
-                        }
-                    }
-
-                    // i don't know why java doesn't have built-in array join and slice.
-                    if (start < parts.length) {
-                        path = parts[start];
-
-                        for (int i = start + 1; i < parts.length; i++) {
-                            path += File.separator + parts[i];
-                        }
-                    } else {
-                        path = "";
+                for (; start < parts.length && start < baseDirParts.length; start++) {
+                    if (parts[start] != baseDirParts[start]) {
+                        break;
                     }
                 }
-            } else {
-                path = filePath.substring(filePath.lastIndexOf(File.separator) + 1);
+
+                // i don't know why java doesn't have built-in array join and slice.
+                if (start < parts.length) {
+                    path = parts[start];
+
+                    for (int i = start + 1; i < parts.length; i++) {
+                        path += File.separator + parts[i];
+                    }
+                } else {
+                    path = "";
+                }
             }
 
             result.add(importSprite(f, path));

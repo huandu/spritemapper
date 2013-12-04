@@ -17,6 +17,7 @@
  */
 package dk.cego.spritemapper;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.IOException;
@@ -28,6 +29,8 @@ import java.awt.geom.AffineTransform;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+
+import javax.imageio.ImageIO;
 
 import dk.cego.spritemapper.util.OutputFilename;
 
@@ -66,7 +69,7 @@ public class SpriteMapper {
 
     public SpriteMapper doLayout(int maxWidth, int maxHeight) {
         if (trim) {
-            forEachSprite(new SpriteTrimmer().setTrimTransparent(trim));
+            forEachSprite(new SpriteTrimmer());
         }
 
         if (spritePreHandler != null) {
@@ -86,29 +89,46 @@ public class SpriteMapper {
 
     public Dimension[] getLayoutDimension() {
     	if (maxMapNumber == 0) {
-    		return null;
+    		throw new RuntimeException("Cannot get sprites dimension. There is no sprite map is created.");
     	}
     	
     	return Sprite.dimensions(sprites, maxMapNumber);
     }
 
-    public SpriteMapper doMetaStream(SpriteMapperMetaStream stream, Dimension[] dimensions, OutputFilename output) throws IOException {
-        if (stream != null || dimensions.length < maxMapNumber) {
-        	output.setMaxNumber(maxMapNumber);
-        	output.resetCurrentNumber();
-        	
-        	for (int i = 0; i < maxMapNumber; i++) {
-        		String filename = output.filename();
-        		OutputStream out = new FileOutputStream(filename);
-            	stream.write(filename, sprites, i, dimensions[i], out);
-        	}
+    public SpriteMapper doMetaStream(String output, String texture, SpriteMapperMetaStream stream, Dimension[] dimensions, boolean keepDir) throws IOException {
+        if (stream == null) {
+        	throw new RuntimeException("Meta stream must be valid.");
         }
+        
+    	if (dimensions.length != maxMapNumber) {
+    		throw new RuntimeException("Dimension array's length must equal to current max map number.");
+    	}
+    	
+    	OutputFilename outFilename = OutputFilename.parseString(output);
+    	outFilename.setMaxNumber(maxMapNumber);
+    	
+    	OutputFilename textureFilename = OutputFilename.parseString(texture);
+    	textureFilename.setMaxNumber(maxMapNumber);
+    	
+    	for (int i = 0; i < maxMapNumber; i++) {
+    		OutputStream out = new FileOutputStream(outFilename.filename());
+    		String textureName = textureFilename.filename();
+    		
+    		// discard directory information if don't need to keep it.
+    		if (!keepDir) {
+    			File textureFile = new File(textureName);
+    			textureName = textureFile.getName();
+    		}
+    		
+    		// write meta file.
+        	stream.write(textureName, sprites, i, dimensions[i], out);
+    	}
         
         return this;
     }
 
-	public List<BufferedImage> getImages(Dimension[] dimensions, int imageType, boolean drawFrames) {
-        //Draw the sprites
+	public SpriteMapper doWriteImages(String output, String type, Dimension[] dimensions, int imageType, boolean drawFrames) throws IOException {
+        //Draw the sprites in memory.
         List<BufferedImage> images = new ArrayList<BufferedImage>(dimensions.length);
         Graphics2D[] graphics = new Graphics2D[dimensions.length];
         int number = 0;
@@ -120,19 +140,19 @@ public class SpriteMapper {
 	        number++;
         }
         
-        Graphics2D g = null;
+        Graphics2D g;
         
         for (Sprite s : sprites) {
-        	g = graphics[s.mapNumber];
-        	AffineTransform t = null;
+        	AffineTransform t;
             BufferedImage img = s.image;
             
             if (s.rotated) {
-                t = new AffineTransform(0,1,-1,0,s.x + img.getHeight(), s.y);
+                t = new AffineTransform(0, 1, -1, 0, s.x + img.getHeight(), s.y);
             } else {
-                t = new AffineTransform(1,0,0,1,s.x,s.y);
+                t = new AffineTransform(1, 0, 0, 1, s.x, s.y);
             }
             
+        	g = graphics[s.mapNumber];
             g.drawImage(img, t, null);
             
             if (drawFrames) {
@@ -145,7 +165,16 @@ public class SpriteMapper {
         	graphics[i].dispose();
         }
         
-        return images;
+        OutputFilename outFilename = OutputFilename.parseString(output);
+    	outFilename.setMaxNumber(images.size());
+    	
+    	// save images to files.
+        for (BufferedImage img : images) {
+        	File outFile = new File(outFilename.filename());
+    		ImageIO.write(img, type, outFile);
+        }
+        
+        return this;
     }
 
     private SpriteMapper forEachSprite(ObjectHandler<Sprite> handler) {
