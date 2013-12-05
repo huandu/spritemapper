@@ -66,6 +66,11 @@ public class SpriteMapperRunner {
         for (FileFilter filter : config.filters) {
         	filter.filter(baseDir, files);
         }
+        
+        // skip this config if files set is empty.
+        if (files.isEmpty()) {
+        	return;
+        }
 
         List<Sprite> sprites = new SpriteImporter().importSprites(baseDir, files);
         
