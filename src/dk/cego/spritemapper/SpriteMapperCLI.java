@@ -20,6 +20,7 @@ package dk.cego.spritemapper;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,7 +29,13 @@ import java.util.TreeMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import dk.cego.spritemapper.config.*;
+
+import dk.cego.spritemapper.config.Config;
+import dk.cego.spritemapper.config.TextureConfig;
+import dk.cego.spritemapper.config.MetaConfig;
+import dk.cego.spritemapper.config.InputConfig;
+import dk.cego.spritemapper.config.OutputConfig;
+import dk.cego.spritemapper.config.Parser;
 
 class ArgumentException extends Exception {
     // it's a fake version uid. however, javac requires it. 
@@ -40,12 +47,12 @@ class ArgumentException extends Exception {
 }
 
 public class SpriteMapperCLI {
-	private final static String VERSION = "2.0.1";
+	private final static String VERSION = "2.1.0";
 	private final static String OPTION_ARGUMENT_PATTERN = "^--([^=]+)(=(.*))?$";
-	private final static String DEFAULT_FILE_INCLUDE_FILTER = "*.{jpg,jpeg,png,gif}";
+	private final static String[] DEFAULT_FILE_INCLUDE_FILTER = {"*.jpg", "*.jpeg", "*.png", "*.gif"};
 
     public static void main(String args[]) throws IOException {
-        if (args.length == 0) {
+    	if (args.length == 0) {
             help();
             System.exit(1);
             return;
@@ -92,9 +99,9 @@ public class SpriteMapperCLI {
                 		throw new ArgumentException("Config file is not readable. Config: " + configFile.getPath());
                 	}
                 } else if (option.equals("include")) {
-                	singleConfig.filters.add(new FileIncludeFilter(argument(arg)));
+                	singleConfig.filters.add(argument(arg));
                 } else if (option.equals("exclude")) {
-                	singleConfig.filters.add(new FileExcludeFilter(argument(arg)));
+                	singleConfig.filters.add("!" + argument(arg));
                 } else if (option.equals("zwoptex2")) {
                 	MetaConfig metaConfig = new MetaConfig();
                 	metaConfig.type = "zwoptex2";
@@ -126,7 +133,7 @@ public class SpriteMapperCLI {
             if (config.isEmpty()) {
                 // if there is no file filter, set a default one.
                 if (singleConfig.filters.isEmpty()) {
-                	singleConfig.filters.add(new FileIncludeFilter(DEFAULT_FILE_INCLUDE_FILTER));
+                	singleConfig.filters.addAll(Arrays.asList(DEFAULT_FILE_INCLUDE_FILTER));
                 }
                 
                 // add all images as input.

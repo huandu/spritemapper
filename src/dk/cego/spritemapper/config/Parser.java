@@ -266,9 +266,9 @@ public class Parser {
 					String value = reader.getElementText();
 					
 					if (type.equals("include")) {
-						config.filters.add(new FileIncludeFilter(value));
+						config.filters.add(value);
 					} else if (type.equals("exclude")) {
-						config.filters.add(new FileExcludeFilter(value));
+						config.filters.add("!" + value);
 					} else {
 						System.err.println("Unsupported 'type' in <filter>. Ignore this filter. Type: " + type);
 					}

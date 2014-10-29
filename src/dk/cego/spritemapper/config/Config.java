@@ -27,7 +27,7 @@ import java.util.Map;
  */
 public class Config {
 	public Map<String, String> options = new HashMap<String, String>();
-	public List<FileFilter> filters = new LinkedList<FileFilter>();
+	public List<String> filters = new LinkedList<String>();
 	public List<InputConfig> inputConfigList = new LinkedList<InputConfig>();
 	public List<OutputConfig> outputConfigList = new LinkedList<OutputConfig>();
 }

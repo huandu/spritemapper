@@ -33,6 +33,10 @@
             <compilerarg value="-Xlint"/>
             <src path="${dir.source}"/>
             <include name="**/*.java"/>
+            
+            <classpath>
+		        <pathelement path="libs/wildcard.jar"/>
+		    </classpath>
         </javac>
     </target>
 
@@ -44,6 +48,8 @@
             <manifest>
                 <attribute name="Main-Class" value="dk.cego.spritemapper.SpriteMapperCLI"/>
             </manifest>
+            
+            <zipgroupfileset dir="libs" includes="wildcard.jar" />
         </jar>
         <delete dir="${dir.temp}"/>
     </target>

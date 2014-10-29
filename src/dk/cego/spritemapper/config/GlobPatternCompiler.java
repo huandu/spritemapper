@@ -42,7 +42,7 @@ public class GlobPatternCompiler {
 			}
 		}
 		
-		// skip leading '*' cause they are useless.
+		// skip leading '*' as they are useless.
 		for (; startIndex < endIndex; startIndex++) {
 			if (chars[startIndex] != '*') {
 				break;
@@ -58,7 +58,7 @@ public class GlobPatternCompiler {
 			}
 		}
 		
-		// skip tailing '*' cause they are useless.
+		// skip tailing '*' as they are useless.
 		for (; startIndex < endIndex; endIndex--) {
 			if (chars[endIndex - 1] != '*') {
 				break;

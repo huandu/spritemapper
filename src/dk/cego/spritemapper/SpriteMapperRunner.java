@@ -23,12 +23,8 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 import dk.cego.spritemapper.config.Config;
-import dk.cego.spritemapper.config.FileFilter;
-import dk.cego.spritemapper.config.FileIncludeFilter;
 import dk.cego.spritemapper.config.InputConfig;
 import dk.cego.spritemapper.config.MetaConfig;
 import dk.cego.spritemapper.config.OutputConfig;
@@ -38,6 +34,8 @@ import dk.cego.spritemapper.maxrects.OptimalMaxRectsLayouter;
 import dk.cego.spritemapper.shelf.ShelfLayouter;
 import dk.cego.spritemapper.spritecomparators.AreaComparator;
 import dk.cego.spritemapper.spritehandlers.Landscape;
+
+import com.esotericsoftware.wildcard.Paths;
 
 /**
  * SpriteMapperRunner can use config to generate output.
@@ -61,11 +59,7 @@ public class SpriteMapperRunner {
 	}
 	
 	public void run() throws IOException, ArgumentException {
-        Set<File> files = scanInput();
-        
-        for (FileFilter filter : config.filters) {
-        	filter.filter(baseDir, files);
-        }
+        List<File> files = scanInput();
         
         // skip this config if files set is empty.
         if (files.isEmpty()) {
@@ -241,47 +235,47 @@ public class SpriteMapperRunner {
 	 * Scan base-dir and filter files with input config using OR logic.
 	 * @return
 	 * @throws ArgumentException
+	 * @throws IOException 
 	 */
-	private Set<File> scanInput() throws ArgumentException {
+	private List<File> scanInput() throws ArgumentException, IOException {
 		if (config.inputConfigList.isEmpty()) {
 			throw new ArgumentException("Must set at least one input image file or directory.");
 		}
 		
-		Set<File> files = new TreeSet<File>();
-		List<FileFilter> filters = new LinkedList<FileFilter>();
+		Paths paths = new Paths();
+		String base = baseDir.getCanonicalPath();
 		
 		for (InputConfig input : config.inputConfigList) {
-			filters.add(new FileIncludeFilter(input.path));
-		}
-		
-		scanDir(baseDir, files, filters);
-		return files;
-	}
-	
-	private void scanDir(File dir, Set<File> files, List<FileFilter> filters) {
-		for (File f : dir.listFiles()) {
-			// skip files not readable.
-			if (!f.canRead()) {
+			File inputFile = new File(input.path);
+			String inputBase = base;
+			
+			if (inputFile.isAbsolute()) {
+				inputBase = "/";
+			} else {
+				inputFile = new File(baseDir, input.path);
+			}
+			
+			if (inputFile.isFile()) {
+				paths.addFile(inputFile.getCanonicalPath());
 				continue;
 			}
 			
-			if (f.isDirectory()) {
-				scanDir(f, files, filters);
+			List<String> filters = new LinkedList<String>();
+			
+			if (inputFile.isDirectory()) {
+				filters.add(input.path + "/**");
+			} else if (input.path.endsWith("/")) {
+				filters.add(input.path + "**");
 			} else {
-				boolean matched = false;
-				
-				for (FileFilter filter : filters) {
-					if (filter.test(baseDir, f)) {
-						matched = true;
-						break;
-					}
-				}
-				
-				if (matched) {
-					files.add(f);
-				}
+				filters.add(input.path);
 			}
+			
+			filters.addAll(config.filters);
+			paths.glob(inputBase, filters);
 		}
+		
+		paths = paths.filesOnly();
+		return paths.getFiles();
 	}
 	
 	private final static int getImageType(String format) {
