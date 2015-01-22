@@ -15,9 +15,9 @@ Step 1: Download source code from GitHub.
 Step 2: Unzip source code and run `ant` in code dir to build it.
 
 ```
-[huandu@localhost Downloads]$ unzip spritemapper-master.zip
-[huandu@localhost Downloads]$ cd spritemapper-master
-[huandu@localhost spritemapper-master]$ ant
+$ unzip spritemapper-master.zip
+$ cd spritemapper-master
+$ ant
 ```
 
 Compiled jar file is located in `./dist/SpriteMapper.jar`.
@@ -73,31 +73,50 @@ Sprite Mapper can run from the command line. The jar archieve contains a default
 $ java -jar SpriteMapper.jar
 SpriteMapper can pack several image files and/or directories into one png file with minimum size.
 
-Usage: java -jar SpriteMapper.jar [options...] <image files or dirs...>
+Usage: java -jar SpriteMapper.jar [--options...] <image files or dirs...>
 
-Input options:
-    --base-dir=.               - Base dir of image files and directories.
-    --file-pattern=\.((png)|(jpe?g)|(gif))$
-                               - Only include files matching this pattern.
+Config file:
+  --config=CONFIG_FILE_NAME  - Use config file to pack many different sprites to differnt sprite maps.
+                               Once config file is set, image files and dirs in argument is ignored.
+                               See online help document for config file structure.
+                               https://github.com/huandu/spritemapper/blob/master/README.md#config-file
+
+Filter options:
+  --include=[Ljava.lang.String;@7ecec0c5
+                             - Only include files matching this pattern. Can set more than 1 filter.
+  --exclude=PATTER           - Exclude files matching this pattern. Can set more than 1 filter.
 
 Metadata options:
-    --zwoptex2=zwoptex2.plist  - Output metadata in Zwoptex2 general plist format.
-    --reserve-dir-name=false   - Reserve dir name for frame keys in metadata file.
+  --zwoptex2=meta{n}.plist   - Output metadata in Zwoptex2 general plist format.
+  --keep-dir=false           - Keep dir name for frame keys in metadata file.
+
+Output options:
+  --output=spritemap{n}.png  - Output sprite map to 'spritemap{n}.png'. '{n}' is output sequence number.
+                               Sequence number stars with 0 by default. Use '{n1}' to make the number
+                               start with 1 instead of 0.
+                               If --max-height is 0 or files can be packed in one sprite map, sequence
+                               number will become an empty string. Use '{n!}' to force generating number.
 
 Packing options:
-    --out=spritemap.png        - Output sprite map to 'spritemap.png'.
-    --algorithm=maxrects       - Set packing algorithm. Can be 'maxrects', 'guillotine' and/or 'shelf'.
-                                 Multiple algorithms can be used together, e.g. 'maxrects,guillotine,shelf'.
-                                 The most optimal algorithm will be chosen for final output.
-    --max-width=1024           - Set maximum width of sprite map to 1024 pixels.
-    --pot-size=false           - Use POT (Power Of Two) value for width and height of sprite map.
-    --draw-frames=false        - Draw frames around images in sprite map.
-    --trim=true                - Trim transparent edges.
-    --spacing=0                - Set sprite spacing.
-    --border=0                 - Set border padding.
+  --base-dir=.               - Base dir of image files and directories.
+  --algorithm=maxrects       - Set packing algorithm. Can be 'maxrects', 'guillotine' and/or 'shelf'.
+                               Multiple algorithms can be used together, e.g. 'maxrects,guillotine,shelf'.
+                               The most optimal algorithm will be chosen for final output.
+  --max-width=1024           - Set maximum width. Default maximum width is 1024 pixels.
+  --max-height=0             - Set maximum height. Default maximum height is 0, which means no limit.
+                               If image files cannot be packed into one sprite due to max height,
+  --use-pot-size=false       - Use POT (Power Of Two) value for width and height of sprite map.
+  --draw-frames=false        - Draw frames around images in sprite map.
+  --trim=false               - Trim transparent edges.
+  --spacing=0                - Set sprite spacing.
+  --border=0                 - Set border padding.
 
 Others:
-    --help                     - Show this help message.
+  --version                  - Show SpriteMapper version number.
+  --help                     - Show this help message.
+
+SpriteMapper is maintained by Huan Du <i@huandu.me>. Visit project page to get help or report bugs.
+Project Page: https://github.com/huandu/spritemapper
 ```
 
 Sprite Mapper will draw images in memory. It may consume hundreds MiB memory at runtime. Make sure to specify a large maximum memory size to avoid abnormal exits, e.g. `-Xmx2G`.
