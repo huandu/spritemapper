@@ -1,11 +1,9 @@
 Sprite Mapper 2
 ===============
 
-SpriteMapper can pack several image files and/or directories into one png file with minimum size. It can write Zwoptex compatible metadata file for sprite map.
+SpriteMapper can pack several image files and/or directories into one png file with minimum image dimension. It can write Zwoptex compatible metadata file (plist format) for sprite map.
 
-It's forked from [SpriteMapper](http://opensource.cego.dk/spritemapper/), which is developed by Robert Larsen. This fork is maintained by Huan Du.
-
-Quick Guide
+Quick Start
 -----------
 
 Use Sprite Mapper in following 3 steps.
@@ -104,51 +102,19 @@ Others:
 
 Sprite Mapper will draw images in memory. It may consume hundreds MiB memory at runtime. Make sure to specify a large maximum memory size to avoid abnormal exits, e.g. `-Xmx2G`.
 
-**Integrate with `ant`**
-
-This is the most well maintained way to run the mapper as this is what I do myself. Get Ant from [here](http://ant.apache.org/).
-
-*Note*: Only a part of features are supported in `ant` task. Related code will be updated to support full command line features later.
-
-Somewhere in your build file you must load the spritemapper `ant` tasks:
-
-```
-<taskdef resource="spritemapper-tasks"/>
-```
-
-The following target shows all supported attributes:
-
-```
-<target name="spritemap">
-    <taskdef resource="spritemapper-tasks"/>
-    <spritemap trim="true" drawframes="false" maxwidth="800" destfile="spritemap.png">
-        <layoutmeta destfile="spritemap.plist" format="zwoptex2"/>
-        <fileset dir="graphics">
-            <include name="**/*.png"/>
-        </fileset>
-    </spritemap>
-</target>
-```
-
-Each tag/parameter will be described in the following.
-
-`<spritemap>`
-
-The spritemap tag is the task for building the spritemap. The images that should be used as input are specified as a nested fileset tag. spritemap supports the following attributes:
-
-* `trim` - Optional. Remove transparent edges. The meta output formats specifies how to recreate the original image. Defaults to true.
-* `drawframes` - Optional. Draw a red frame around each image. This is for debugging only. Defaults to false.
-* `maxwidth` - Required. Maximum width in pixels of the resulting sprite map.
-destfile - Required. File to write resulting sprite map to.
-
-`<layoutmeta>`
-
-This tag defines a file that should contain the coordinate information for the sprite map. It is contained within the spritemap tag. Multiple tags are allowed. It supports the following attributes:
-
-* `destfile` - Required. File to write content to.
-* `format` - Optional. Format of output. Defaults to 'zwoptex2' which currently is the only supported format.
-
 License
 -------
 
-This software is licensed under GPLv3. See LICENSE for detail.
+SpriteMapper is licensed under GPLv3. See LICENSE for detail.
+
+Dependency
+----------
+
+SpriteMapper uses [wildcard](https://github.com/EsotericSoftware/wildcard) library in binary form (the libs/wildcard.jar). Thank you, @EsotericSoftware.
+
+History
+-------
+
+It was forked from [SpriteMapper](http://opensource.cego.dk/spritemapper/), which is developed by Robert Larsen. This fork is maintained by Huan Du.
+
+Sprite Mapper 2 is **NOT** compatible with the original fork. If you are looking for old one, please check out tag-v1@2166c2ece0f6ccc1264f743cf75b2eadb8279ed1 instead.

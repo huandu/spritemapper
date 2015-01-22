@@ -47,7 +47,7 @@ class ArgumentException extends Exception {
 }
 
 public class SpriteMapperCLI {
-	private final static String VERSION = "2.1.0";
+	private final static String VERSION = "2.1.1";
 	private final static String OPTION_ARGUMENT_PATTERN = "^--([^=]+)(=(.*))?$";
 	private final static String[] DEFAULT_FILE_INCLUDE_FILTER = {"*.jpg", "*.jpeg", "*.png", "*.gif"};
 
@@ -227,7 +227,8 @@ public class SpriteMapperCLI {
         System.out.println("                               The most optimal algorithm will be chosen for final output.");
         System.out.println("  --max-width=1024           - Set maximum width. Default maximum width is 1024 pixels.");
         System.out.println("  --max-height=0             - Set maximum height. Default maximum height is 0, which means no limit.");
-        System.out.println("                               If image files cannot be packed into one sprite due to max height, ");
+        System.out.println("                               If image files cannot be packed into one sprite due to max height, they will be");
+        System.out.println("                               packed into several files automatically.");
         System.out.println("  --use-pot-size=false       - Use POT (Power Of Two) value for width and height of sprite map.");
         System.out.println("  --draw-frames=false        - Draw frames around images in sprite map.");
         System.out.println("  --trim=false               - Trim transparent edges.");
