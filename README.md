@@ -117,4 +117,4 @@ History
 
 It was forked from [SpriteMapper](http://opensource.cego.dk/spritemapper/), which is developed by Robert Larsen. This fork is maintained by Huan Du.
 
-Sprite Mapper 2 is **NOT** compatible with the original fork. If you are looking for old one, please check out tag-v1@2166c2ece0f6ccc1264f743cf75b2eadb8279ed1 instead.
+Sprite Mapper 2 is **NOT** compatible with the original fork. If you are looking for old one, please check out [tag-v1](https://github.com/huandu/spritemapper/tree/tag-v1) instead.
